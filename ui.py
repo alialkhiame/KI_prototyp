@@ -1,45 +1,24 @@
-from flask import Flask, render_template, request
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier  # You can choose any other algorithm from scikit-learn
+import random
 
-app = Flask(__name__)
+class DataGenerator:
+    def __init__(self, num_samples=10):
+        self.num_samples = num_samples
 
-@app.route('/')
-def index():
-    return render_template('./index.html')
+    def generate_data(self):
+        data = {
+            'Feature1': [random.randint(1, 100) for _ in range(self.num_samples)],
+            'Feature2': [random.uniform(0, 1) for _ in range(self.num_samples)],
+            'Umsatz': [random.uniform(1000, 10000) for _ in range(self.num_samples)]
+        }
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'file' not in request.files:
-        return render_template('index.html', error='No file part')
+        return pd.DataFrame(data)
 
-    file = request.files['file']
+    def save_to_csv(self, file_path='test_data.csv'):
+        df = self.generate_data()
+        df.to_csv(file_path, index=False)
+        print(f"Data saved to {file_path}")
 
-    if file.filename == '':
-        return render_template('index.html', error='No selected file')
-
-    # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv(file)
-
-    # Assume the last column is the target variable (goal)
-    goal_column = df.columns[-1]
-
-    # Separate features and target variable
-    X = df.drop(goal_column, axis=1)
-    y = df[goal_column]
-
-    # User-selected algorithm (Random Forest as an example)
-    clf = RandomForestClassifier()
-
-    # Train the model
-    clf.fit(X, y)
-
-    # Make predictions
-    predictions = clf.predict(X)  # You may want to use new data for predictions
-
-    # Pass the predictions to the template
-    return render_template('result.html', predictions=predictions)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+# Beispiel für die Verwendung der Klasse
+data_generator = DataGenerator(num_samples=20)
+data_generator.save_to_csv(file_path='umsatz_data.csv')
