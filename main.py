@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
 # Load data from a CSV file
-file_path = 'your_data.csv'  # Replace 'your_data.csv' with the actual path to your CSV file
+file_path = 'data.csv'  # Replace 'your_data.csv' with the actual path to your CSV file
 data = pd.read_csv(file_path)
 
 # Assuming your CSV has columns 'X' and 'y', change these column names based on your actual data
