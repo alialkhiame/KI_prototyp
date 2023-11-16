@@ -1,40 +1,32 @@
-# Import necessary libraries
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
-# Load data from a CSV file
-file_path = 'data.csv'  # Replace 'your_data.csv' with the actual path to your CSV file
-data = pd.read_csv(file_path)
+# Preparing the data for the model
+from dataGen import df
 
-# Assuming your CSV has columns 'X' and 'y', change these column names based on your actual data
-X = data[['X']]
-y = data['y']
+X = df.drop(['Year', 'Umsatz'], axis=1)  # Features (excluding Year and Umsatz)
+y = df['Umsatz']  # Target (Umsatz)
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Splitting the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-# Create a linear regression model
+# Creating and training the linear regression model
 model = LinearRegression()
-
-# Train the model on the training data
 model.fit(X_train, y_train)
 
-# Make predictions on the test data
+# Predicting on the test set and calculating the Mean Squared Error
 y_pred = model.predict(X_test)
-
-# Evaluate the model
 mse = mean_squared_error(y_test, y_pred)
-rmse = np.sqrt(mse)
-print(f"Root Mean Squared Error: {rmse}")
+print("Mean Squared Error:", mse)
 
-# Plot the data and the regression line
-plt.scatter(X_test, y_test, color='black')
-plt.plot(X_test, y_pred, color='blue', linewidth=3)
-plt.xlabel('X')
-plt.ylabel('y')
-plt.title('Linear Regression')
-plt.show()
+# Predicting Umsatz for 2023, 2024, and 2025
+# We will use the mean values of the features for these predictions
+future_years = pd.DataFrame([X.mean()] * 3)
+future_years.index = [2023, 2024, 2025]
+predicted_umsatz = model.predict(future_years)
+
+# Displaying the predicted Umsatz
+for year, umsatz in zip([2023, 2024, 2025], predicted_umsatz):
+    print(f"Year: {year}, Predicted Umsatz: {umsatz}")

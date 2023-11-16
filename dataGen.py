@@ -1,20 +1,25 @@
 import pandas as pd
-import random
+import numpy as np
 
-# Generate sample data
-data = {
-    'Feature1': [random.randint(1, 100) for _ in range(10)],
-    'Feature2': [random.uniform(0, 1) for _ in range(10)],
-    'Target': [random.choice(['ClassA', 'ClassB']) for _ in range(10)]
-}
+class dataGen:
+    def __init__(self):
+        # Setting the random seed for reproducibility
+        np.random.seed(0)
 
-# Create a DataFrame
-df = pd.DataFrame(data)
-
-# Specify the file path to save the CSV file
-file_path = 'test_data.csv'
-
-# Save the DataFrame to a CSV file
-df.to_csv(file_path, index=False)
-
-print(f"Data saved to {file_path}")
+    def generate_data(self):
+        years = list(range(2000, 2023))
+        data = {
+            "Year": years,
+            "Kosten": [100] + [100 + np.random.randint(-10, 11) for _ in years[1:]],
+            "Umwetterung": np.random.randint(1, 11, len(years)),
+            "Arbeits": np.random.uniform(50, 100, len(years)),
+            "Inflation": np.random.uniform(0, 5, len(years)),
+            "Gewinn": [100] + [100 + np.random.randint(-10, 11) for _ in years[1:]],
+            "Eigenkapital": np.random.randint(10000, 100000, len(years)),
+            "Fremdkapital": np.random.randint(10000, 100000, len(years)),
+            "Umsatz": np.random.randint(50000, 500000, len(years)),
+            "Arbeitslosenquote": np.random.uniform(3, 10, len(years)),
+            "API_Factors": np.random.randint(1, 100, len(years)),
+            "GDP": np.random.randint(100000, 1000000, len(years))
+        }
+        return pd.DataFrame(data)
