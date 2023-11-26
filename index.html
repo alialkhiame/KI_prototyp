@@ -4,89 +4,111 @@
     <title>Construction Data Analysis</title>
 </head>
 <body>
-    <h1>Construction Data Analysis Tool</h1>
+<h1>Construction Data Analysis Tool</h1>
 
-    <!-- File Upload Form -->
-    <form id="upload-form">
-        <input type="file" name="file" id="file-upload">
-        <input type="button" value="Upload Data" onclick="uploadFile()">
-    </form>
+<!-- File Upload Form -->
+<form id="upload-form">
+    <input type="file" name="file" id="file-upload">
+    <input type="button" value="Upload Data" onclick="uploadFile()">
+</form>
 
-    <!-- Variable Selection -->
-    <div id="variable-selection">
-        <!-- Checkboxes for variable selection will be populated here -->
-    </div>
+<!-- Variable Selection -->
+<div id="variable-selection">
+    <!-- Checkboxes for variable selection will be populated here -->
+</div>
 
-    <!-- Target Column Selection -->
-    <label for="target-column">Select Target Column:</label>
-    <select id="target-column">
-        <!-- Options for target column will be populated here -->
-    </select>
+<!-- Target Column Selection -->
+<label for="target-column">Select Target Column:</label>
+<select id="target-column">
+    <!-- Options for target column will be populated here -->
+</select>
 
-    <!-- Start Prediction Button -->
-    <button onclick="startPrediction()">Start Prediction</button>
+<!-- Start Prediction Button -->
+<button onclick="startPrediction()">Start Prediction</button>
 
-    <!-- Result Display -->
-    <div id="results">
-        <!-- Prediction results will be displayed here -->
-    </div>
+<!-- Result Display -->
+<div id="results">
+    <!-- Prediction results will be displayed here -->
+</div>
 
-    <script>
-        function uploadFile() {
-            var formData = new FormData(document.getElementById('upload-form'));
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json())
+<script>
+    function uploadFile() {
+        var formData = new FormData(document.getElementById('upload-form'));
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
             .then(data => {
                 populateVariableSelection(data.columns);
             }).catch(error => console.error('Error:', error));
+    }
+
+    function populateVariableSelection(columns) {
+        var selectionDiv = document.getElementById('variable-selection');
+        var targetColumnSelect = document.getElementById('target-column');
+        selectionDiv.innerHTML = '';
+        targetColumnSelect.innerHTML = '';
+
+        columns.forEach(column => {
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = column;
+            checkbox.name = 'variables';
+            checkbox.value = column;
+
+            var label = document.createElement('label');
+            label.htmlFor = column;
+            label.appendChild(document.createTextNode(column));
+
+            selectionDiv.appendChild(checkbox);
+            selectionDiv.appendChild(label);
+            selectionDiv.appendChild(document.createElement('br'));
+
+            // Also populate target column select
+            var option = document.createElement('option');
+            option.value = column;
+            option.text = column;
+            targetColumnSelect.appendChild(option);
+        });
+    }
+
+    function startPrediction() {
+    var selectedColumns = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(el => el.value);
+console.log(selectedColumns)
+    var targetColumn = document.getElementById('target-column').value;
+
+    // Assuming you have an input for the CSV file
+    var fileInput = document.getElementById('csv-file');
+    var formData = new FormData();
+
+    formData.append('data', fileInput.files[0]);
+
+    formData.append('selected_columns', JSON.stringify(selectedColumns));
+    formData.append('target_column', targetColumn);
+    fileInput.innerHTML = formData;
+
+    fetch('/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
         }
-
-        function populateVariableSelection(columns) {
-            var selectionDiv = document.getElementById('variable-selection');
-            var targetColumnSelect = document.getElementById('target-column');
-            selectionDiv.innerHTML = '';
-            targetColumnSelect.innerHTML = '';
-
-            columns.forEach(column => {
-                var checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = column;
-                checkbox.name = 'variables';
-                checkbox.value = column;
-
-                var label = document.createElement('label');
-                label.htmlFor = column;
-                label.appendChild(document.createTextNode(column));
-
-                selectionDiv.appendChild(checkbox);
-                selectionDiv.appendChild(label);
-                selectionDiv.appendChild(document.createElement('br'));
-
-                // Also populate target column select
-                var option = document.createElement('option');
-                option.value = column;
-                option.text = column;
-                targetColumnSelect.appendChild(option);
-            });
+        return response.json();
+    })
+    .then(data => {
+        if (data.predictions) {
+            document.getElementById('results').innerText = 'Predictions: ' + data.predictions.join(', ');
+        } else {
+            console.error('Predictions not found in the response');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
-        function startPrediction() {
-            var selectedColumns = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(el => el.value);
-            var targetColumn = document.getElementById('target-column').value;
-
-            fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({selected_columns: selectedColumns, target_column: targetColumn})
-            }).then(response => response.json())
-            .then(data => {
-                document.getElementById('results').innerText = 'Predictions: ' + data.predictions.join(', ');
-            }).catch(error => console.error('Error:', error));
-        }
-    </script>
+</script>
 </body>
 </html>
