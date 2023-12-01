@@ -2,12 +2,15 @@ import json
 
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import io
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+
+from sklearn.tree import DecisionTreeRegressor
 
 app = Flask(__name__)
 
@@ -63,20 +66,38 @@ def predict():
 
         predictions = model.predict(X_test)
 
-        # Plotting
-        plt.figure()
-        plt.scatter(X_test.iloc[:, 0], y_test)
-        plt.plot(X_test.iloc[:, 0], predictions, color='red')
-        img = BytesIO()
-        plt.savefig(img, format='png')
-        img.seek(0)
-        plot_url = base64.b64encode(img.getvalue()).decode()
+        # Linear Regression
+        lr_model = LinearRegression()
+        lr_model.fit(X_train, y_train)
+        lr_predictions = lr_model.predict(X_test)
 
-        return jsonify(predictions=predictions.tolist(), plot_url=plot_url)
+        # Decision Tree Regressor
+        dt_model = DecisionTreeRegressor()
+        dt_model.fit(X_train, y_train)
+        dt_predictions = dt_model.predict(X_test)
+
+        # Random Forest Regressor
+        rf_model = RandomForestRegressor()
+        rf_model.fit(X_train, y_train)
+        rf_predictions = rf_model.predict(X_test)
+        print(rf_predictions)
+        print(dt_predictions)
+        print(lr_predictions)
+        # Preparing the results
+        results = pd.DataFrame({
+            'Linear_Regression': lr_predictions,
+            'Decision_Tree': dt_predictions,
+            'Random_Forest': rf_predictions
+        })
+        print("fu")
+        # Converting DataFrame to HTML table
+        results_html = results.to_html()
+
+        return jsonify(table=results_html)
     except Exception as e:
-        return jsonify(error=str(e)), 400
+        return jsonify(error=str("wtf man")), 400
 
 
-if __name__ == '__main__':
+if __name__ == '_main_':
     print("KI_")
     app.run(debug=True)

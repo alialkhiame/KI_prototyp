@@ -98,8 +98,9 @@
                 alert(data.error);
                 return;
             }
+            console.log(data);
             var resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data.plot_url + '" />';
+           resultsDiv.innerHTML = JSON.stringify(data);
             // Display other results as needed
         }
     </script>
