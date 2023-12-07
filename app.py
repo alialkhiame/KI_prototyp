@@ -1,7 +1,9 @@
 import json
+import logging
 
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import io
@@ -9,7 +11,14 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
+from sklearn.tree import DecisionTreeRegressor
+
 app = Flask(__name__)
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Create a logger
+logger = logging.getLogger(__name__)
 
 
 @app.route('/')
@@ -23,12 +32,14 @@ def upload_file():
         return jsonify(error="No file part"), 400
 
     file = request.files['file']
-
+    logger.info("file")
+    logger.info(file)
     try:
         data = pd.read_csv(file.stream)
         mean_value = data['Umsatz'].mean()
         cleaned_data = data.fillna(mean_value)
-
+        logger.info("Clean Data")
+        logger.info(cleaned_data)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
@@ -63,18 +74,49 @@ def predict():
 
         predictions = model.predict(X_test)
 
-        # Plotting
-        plt.figure()
-        plt.scatter(X_test.iloc[:, 0], y_test)
-        plt.plot(X_test.iloc[:, 0], predictions, color='red')
+        # Linear Regression
+        lr_model = LinearRegression()
+        lr_model.fit(X_train, y_train)
+        lr_predictions = lr_model.predict(X_test)
+
+        # Decision Tree Regressor
+        dt_model = DecisionTreeRegressor()
+        dt_model.fit(X_train, y_train)
+        dt_predictions = dt_model.predict(X_test)
+
+        # Random Forest Regressor
+        rf_model = RandomForestRegressor()
+        rf_model.fit(X_train, y_train)
+        rf_predictions = rf_model.predict(X_test)
+
+        # Preparing the results
+        results = pd.DataFrame({
+            'Linear_Regression': lr_predictions,
+            'Decision_Tree': dt_predictions,
+            'Random_Forest': rf_predictions
+        })
+
+        # Plotting the results
+        plt.figure(figsize=(10, 6))
+        results.plot(kind='bar')
+        plt.title('Model Predictions')
+        plt.xlabel('Data Points')
+        plt.ylabel('Predicted Values')
+        plt.tight_layout()
+
+        # Saving plot to a BytesIO object
         img = BytesIO()
         plt.savefig(img, format='png')
         img.seek(0)
-        plot_url = base64.b64encode(img.getvalue()).decode()
+        # Encoding the image in base64
+        plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+        logger.info("plot_url")
+        logger.info(plot_url)
 
-        return jsonify(predictions=predictions.tolist(), plot_url=plot_url)
+        return jsonify(image=plot_url)
     except Exception as e:
         return jsonify(error=str(e)), 400
+
 
 
 if __name__ == '__main__':
