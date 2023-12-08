@@ -97,7 +97,7 @@ def predict():
         })
 
         # Plotting the results
-        plt.figure(figsize=(10, 6))
+
         results.plot(kind='bar')
         plt.title('Model Predictions')
         plt.xlabel('Data Points')
@@ -113,9 +113,19 @@ def predict():
         logger.info("plot_url")
         logger.info(plot_url)
 
-        return jsonify(image=plot_url)
+
+
+
+        # Converting DataFrame to HTML table
+        results_html = results.to_html()
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        return jsonify(predictions=dt_predictions.tolist(), plot_url=plot_url)
+
     except Exception as e:
-        return jsonify(error=str(e)), 400
+        return jsonify(error=str("wtf man")), 400
+
+
+
 
 
 

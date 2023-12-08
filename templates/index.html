@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                                                                                                                                                                                                                                                             <!DOCTYPE html>
 <html>
 <head>
     <title>Construction Data Analysis</title>
@@ -11,9 +11,7 @@
         <input type="file" name="file" id="file-upload">
         <input type="button" value="Upload Data" onclick="uploadFile()">
     </form>
-  <div id="data">
-        <!-- Prediction results will be displayed here -->
-    </div>
+
     <!-- Variable Selection -->
     <div id="variable-selection">
         <!-- Checkboxes for variable selection will be populated here -->
@@ -32,15 +30,10 @@
     <div id="results">
         <!-- Prediction results will be displayed here -->
     </div>
-     <div id="asd">
-        <!-- Prediction results will be displayed here -->
-    </div>
-<button  id ="4" onclick="displayResults()">Show result</button>
-<img id="resultImage" src="data:image/png;base64, [Your_Base64_String]" />
+
     <script>
         function uploadFile() {
             var formData = new FormData(document.getElementById('upload-form'));
-
             formData.append('file', document.getElementById('file-upload').files[0]);
             fetch('/upload', {
                 method: 'POST',
@@ -86,7 +79,7 @@
             var targetColumn = document.getElementById('target-column').value;
             var formData = new FormData();
 
-            console.log(selectedVariables+" and "+ targetColumn+" and");
+            console.log(selectedVariables+"and "+ targetColumn+"and");
             formData.append('selected_columns', JSON.stringify(selectedVariables));
             formData.append('target_column', targetColumn);
             formData.append('data', document.getElementById('file-upload').files[0]);
@@ -101,30 +94,16 @@
         }
 
         function displayResults(data) {
-
-            console.log("my Data"+data)
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
             var resultsDiv = document.getElementById('results');
-             var resultsDiv2 = document.getElementById('asd');
-            resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data + '" />';
-            resultsDiv2.innerHTML = data;
+            resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data.plot_url + '" />';
             // Display other results as needed
         }
-          function displayResults(data) {
-
-
-    var resultsDiv = document.getElementById('results');
-
-    if (data) {
-        var image = '<img src="data:image/png;base64,' + data + '" />';
-         console.log("hey");
-
-        resultsDiv.innerHTML = image + data;
-    } else {
-        resultsDiv.innerHTML = data;
-    }
-}
-
     </script>
-
 </body>
 </html>
+
+
