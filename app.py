@@ -32,18 +32,21 @@ def upload_file():
         return jsonify(error="No file part"), 400
 
     file = request.files['file']
-    logger.info("file")
-    logger.info(file)
+    # logger.info("file")
+    # logger.info(file)
     try:
-        data = pd.read_csv(file.stream)
+        data = pd.read_csv(io.StringIO(file.stream.read().decode('UTF-8')))
         mean_value = data['Umsatz'].mean()
         cleaned_data = data.fillna(mean_value)
-        logger.info("Clean Data")
-        logger.info(cleaned_data)
+        # logger.info("Clean Data")
+        # logger.info(cleaned_data)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
-    return jsonify(columns=cleaned_data.columns.tolist())
+    cleaned_json = cleaned_data.head().to_json(orient='records')
+    columns = cleaned_data.columns.tolist()
+
+    return jsonify(columns=columns, data=json.loads(cleaned_json))
 
 
 @app.route('/predict', methods=['POST'])
@@ -122,7 +125,7 @@ def predict():
         return jsonify(predictions=dt_predictions.tolist(), plot_url=plot_url)
 
     except Exception as e:
-        return jsonify(error=str("wtf man")), 400
+        return jsonify(error=str("nothing changing")), 400
 
 
 
@@ -131,4 +134,4 @@ def predict():
 
 if __name__ == '__main__':
     print("KI_")
-    app.run(debug=True)
+    app.run(debug=True, port=8080)

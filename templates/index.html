@@ -2,36 +2,86 @@
 <html>
 <head>
     <title>Construction Data Analysis</title>
+
+    <style>
+        .container {
+            display: flex;
+        }
+
+        #left-section {
+            flex: 1;
+            margin-right: 20px; /* Adjust margin as needed */
+        }
+
+        #dataTable {
+            flex: 1;
+        }
+
+        .dataTable {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .dataTable th, .dataTable td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .dataTable th {
+            background-color: #f2f2f2;
+        }
+
+        #variable-selection, #results {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Construction Data Analysis Tool</h1>
 
-    <!-- File Upload Form -->
-    <form id="upload-form">
-        <input type="file" name="file" id="file-upload">
-        <input type="button" value="Upload Data" onclick="uploadFile()">
-    </form>
+    <div class="container">
+        <!-- Left Section -->
+        <div id="left-section">
+            <!-- File Upload Form -->
+            <form id="upload-form">
+                <input type="file" name="file" id="file-upload">
+                <input type="button" value="Upload Data" onclick="uploadFile()">
+            </form>
 
-    <!-- Variable Selection -->
-    <div id="variable-selection">
-        <!-- Checkboxes for variable selection will be populated here -->
-    </div>
+            <!-- Variable Selection -->
+            <div id="variable-selection">
+                <!-- Checkboxes for variable selection will be populated here -->
+            </div>
 
-    <!-- Target Column Selection -->
-    <label for="target-column">Select Target Column:</label>
-    <select id="target-column">
-        <!-- Options for target column will be populated here -->
-    </select>
+            <!-- Target Column Selection -->
+            <label for="target-column">Select Target Column:</label>
+            <select id="target-column">
+                <!-- Options for target column will be populated here -->
+            </select>
 
-    <!-- Start Prediction Button -->
-    <button onclick="startPrediction()">Start Prediction</button>
+            <!-- Start Prediction Button -->
+            <button onclick="startPrediction()">Start Prediction</button>
 
-    <!-- Result Display -->
-    <div id="results">
-        <!-- Prediction results will be displayed here -->
+            <!-- Result Display -->
+            <div id="results">
+                <!-- Prediction results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Right Section: DataTable -->
+        <div id="dataTable" class="dataTable">
+            <!-- First 10 rows of the data table will be displayed-->
+        </div>
     </div>
 
     <script>
+
+        let globalData = null;
+
         function uploadFile() {
             var formData = new FormData(document.getElementById('upload-form'));
             formData.append('file', document.getElementById('file-upload').files[0]);
@@ -40,9 +90,70 @@
                 body: formData
             }).then(response => response.json())
             .then(data => {
+
+                globalData = data;
+
                 populateVariableSelection(data.columns);
+
+                console.log(globalData);
+                console.log(data.columns);
+                console.log(data.data[0]);
+
+                // Call the function to display the data
+                displayDataTable(globalData);
+
             }).catch(error => console.error('Error:', error));
         }
+
+        function displayDataTable(data) {
+
+            // Create a table element
+            var table = document.createElement('table');
+
+            // Create table header
+            var thead = document.createElement('thead');
+            var headerRow = document.createElement('tr');
+
+            // Extract column names from the provided columns array
+            var columns = data.columns;
+
+            // Create header cells
+            columns.forEach(function (column) {
+                var th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+
+            // Append the header row to the thead
+            thead.appendChild(headerRow);
+
+            // Append the thead to the table
+            table.appendChild(thead);
+
+            // Create table body
+            var tbody = document.createElement('tbody');
+
+            // Create rows and cells for the data
+            data.data.forEach(function (row) {
+                var tr = document.createElement('tr');
+
+                columns.forEach(function (column) {
+                    var td = document.createElement('td');
+                    td.textContent = row[column];
+                    tr.appendChild(td);
+                });
+
+                // Append the row to the tbody
+                tbody.appendChild(tr);
+            });
+
+            // Append the tbody to the table
+            table.appendChild(tbody);
+
+            // Append the table to the container in the HTML document
+            document.getElementById('dataTable').appendChild(table);
+        }
+
 
         function populateVariableSelection(columns) {
             var selectionDiv = document.getElementById('variable-selection');
