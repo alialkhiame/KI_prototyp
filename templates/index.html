@@ -1,195 +1,326 @@
 <!DOCTYPE html>
 <html>
-<head>
-<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
-    <title>Construction Data Analysis</title>
-</head>
-<body>
- <!-- stats - count particles -->
-    <div class="container">
-    <h1>Construction Data Analysis Tool</h1>
+   <head>
+      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+      <title>Construction Data Analysis</title>
+      <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+   </head>
+   <body>
 
-    <!-- File Upload Form -->
-    <form id="upload-form"  class="form-container" enctype='multipart/form-data'>
-        <div class="upload-files-container">
-		<div class="drag-file-area">
-            <h3 class="dynamic-message"> Drag & drop any file here </h3><br/>
-            <label class="label"> <span class="browse-files-text">from device</span> </span> </label>
-		</div></div>
-      <!--  <input type="file" class  ="file-buttom" name="file" id="file-upload"> -->
-    </form>
-        <input type="button" class = "input" value="Upload Data" onclick="uploadFile()">
-
-    <!-- Variable Selection -->
-    <div id="variable-selection">
-        <!-- Checkboxes for variable selection will be populated here -->
-    </div>
-
-    <!-- Target Column Selection -->
-    <label for="target-column">Select Target Column:</label>
-    <select id="target-column">
-        <!-- Options for target column will be populated here -->
-    </select>
-
-    <!-- Start Prediction Button -->
-    <button class =  "submit"onclick="startPrediction()">Start Prediction</button>
-
-    <!-- Result Display -->
-    <div id="results">
-        <!-- Prediction results will be displayed here -->
-</div>
-    </div>
 <div id="particles-js"></div>
-</body>
-<script>
-    function uploadFile() {
-        var formData = new FormData(document.getElementById('upload-form'));
-        formData.append('file', document.getElementById('file-upload').files[0]);
-        fetch('/upload', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
-            .then(data => {
-                populateVariableSelection(data.columns);
-            }).catch(error => console.error('Error:', error));
-    }
+<!-- stats - count particles -->
 
-    function populateVariableSelection(columns) {
-        var selectionDiv = document.getElementById('variable-selection');
-        var targetColumnSelect = document.getElementById('target-column');
-        selectionDiv.innerHTML = '';
-        targetColumnSelect.innerHTML = '';
+      <!-- stats - count particles -->
+      <div class="container">
+         <h1 style="color:white;">Construction Data Analysis Tool</h1>
+         <!-- File Upload Form -->
+<form class="form-container" enctype='multipart/form-data'>
+	<div class="upload-files-container">
+		<div class="drag-file-area">
+			<span class="material-icons-outlined upload-icon"> file_upload </span>
+			<h3 class="dynamic-message"> Drag & drop any file here </h3>
+			<label class="label"> or <span class="browse-files"> <input type="file" class="default-file-input"/> <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
+		</div>
+		<span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> Please select a file first <span class="material-icons-outlined cancel-alert-button">cancel</span> </span>
+		<div class="file-block">
+			<div class="file-info"> <span class="material-icons-outlined file-icon">description</span> <span class="file-name"> </span> | <span class="file-size">  </span> </div>
+			<span class="material-icons remove-file-icon">delete</span>
+			<div class="progress-bar"> </div>
+		</div>
+		<button type="button" class="upload-button"> Upload </button>
+	</div>
+</form>
+         <input type="button" class = "input" value="Upload Data" onclick="uploadFile()">
+         <!-- Variable Selection -->
+         <div id="variable-selection">
+            <!-- Checkboxes for variable selection will be populated here -->
+         </div>
+         <!-- Target Column Selection -->
+         <label for="target-column">Select Target Column:</label>
+         <select id="target-column">
+            <!-- Options for target column will be populated here -->
+         </select>
+         <!-- Start Prediction Button -->
+         <button class="custom-btn btn-12" onclick="startPrediction()"><span>Click!</span><span>Read More</span></button>
+         <!-- Result Display -->
+         <div id="results"></div>
+      </div>
 
-        columns.forEach(column => {
-            // Checkbox for variable selection
-            var checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = column;
-            checkbox.name = 'variables';
-            checkbox.value = column;
+   <script>
+      function uploadFile() {
+          var formData = new FormData(document.getElementById('upload-form'));
+          formData.append('file', document.getElementById('file-upload').files[0]);
+          fetch('/upload', {
+              method: 'POST',
+              body: formData
+          }).then(response => response.json())
+              .then(data => {
+                  populateVariableSelection(data.columns);
+              }).catch(error => console.error('Error:', error));
+      }
 
-            var label = document.createElement('label');
-            label.htmlFor = column;
-            label.appendChild(document.createTextNode(column));
+      function populateVariableSelection(columns) {
+          var selectionDiv = document.getElementById('variable-selection');
+          var targetColumnSelect = document.getElementById('target-column');
+          selectionDiv.innerHTML = '';
+          targetColumnSelect.innerHTML = '';
 
-            selectionDiv.appendChild(checkbox);
-            selectionDiv.appendChild(label);
-            selectionDiv.appendChild(document.createElement('br'));
+          columns.forEach(column => {
+              // Checkbox for variable selection
+              var checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.id = column;
+              checkbox.name = 'variables';
+              checkbox.value = column;
 
-            // Option for target column
-            var option = document.createElement('option');
-            option.value = column;
-            option.text = column;
-            targetColumnSelect.appendChild(option);
-        });
-    }
+              var label = document.createElement('label');
+              label.htmlFor = column;
+              label.appendChild(document.createTextNode(column));
 
-    function startPrediction() {
-        var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
-        var targetColumn = document.getElementById('target-column').value;
-        var formData = new FormData();
+              selectionDiv.appendChild(checkbox);
+              selectionDiv.appendChild(label);
+              selectionDiv.appendChild(document.createElement('br'));
 
-        console.log(selectedVariables + "and " + targetColumn + "and");
-        formData.append('selected_columns', JSON.stringify(selectedVariables));
-        formData.append('target_column', targetColumn);
-        formData.append('data', document.getElementById('file-upload').files[0]);
+              // Option for target column
+              var option = document.createElement('option');
+              option.value = column;
+              option.text = column;
+              targetColumnSelect.appendChild(option);
+          });
+      }
 
-        fetch('/predict', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
-            .then(data => {
-                displayResults(data);
-            }).catch(error => console.error('Error:', error));
-    }
+      function startPrediction() {
+          var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
+          var targetColumn = document.getElementById('target-column').value;
+          var formData = new FormData();
 
-    function displayResults(data) {
-        if (data.error) {
-            alert(data.error);
-            return;
-        }
-        var resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data.plot_url + '" />';
-        // Display other results as needed
-    }
-</script>
-</body>
-<script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
+          console.log(selectedVariables + "and " + targetColumn + "and");
+          formData.append('selected_columns', JSON.stringify(selectedVariables));
+          formData.append('target_column', targetColumn);
+          formData.append('data', document.getElementById('file-upload').files[0]);
 
-<script>particlesJS("particles-js", {
-    particles: {
-        number: {value: 5, density: {enable: true, value_area: 200}},
-        color: {value: "random"},
-        shape: {
-            type: "circle",
-            stroke: {width: 0.3, color: "#ffffff"},
-            polygon: {nb_sides: 5},
-            image: {src: "./images/111.jpg", width: 1, height: 100}
-        },
-        opacity: {
-            value: 1.7,
-            random: true,
-            anim: {enable: false, speed: 0.6, opacity_min: 0.4, sync: false}
-        },
-        size: {
-            value: 1.8,
-            random: false,
-            anim: {enable: false, speed: 40, size_min: 0.1, sync: false}
-        },
-        line_linked: {
-            enable: false,
-            distance: 100,
-            color: "#a85e32",
-            opacity: 0.9,
-            width: 2.62
-        },
-        move: {
-            enable: true,
-            speed: 2,
-            direction: "none",
-            random: true,
-            straight: false,
-            out_mode: "out",
-            bounce: true,
-            attract: {enable: true, rotateX: 600, rotateY: 1200}
-        }
-    },
-    interactivity: {
-        detect_on: "canvas",
-        events: {
-            onhover: {enable: true, mode: "grab"},
+          fetch('/predict', {
+              method: 'POST',
+              body: formData
+          }).then(response => response.json())
+              .then(data => {
+                  displayResults(data);
+              }).catch(error => console.error('Error:', error));
+      }
 
-            resize: true
-        },
-        modes: {
-            grab: {distance: 120, line_linked: {opacity: 3}},
-            bubble: {distance: 400, size: 40, duration: 2, opacity: 8, speed: 3},
-            repulse: {distance: 200, duration: 0.4},
-            push: {particles_nb: 4},
-            remove: {particles_nb: 2}
-        }
-    },
-    retina_detect: true
+      function displayResults(data) {
+          if (data.error) {
+              alert(data.error);
+              return;
+          }
+          var resultsDiv = document.getElementById('results');
+          resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data.plot_url + '" />';
+          // Display other results as needed
+      }
+   </script>
+
+   <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
+   <script>
+       particlesJS("particles-js", {
+      particles: {
+          number: {value: 5, density: {enable: true, value_area: 200}},
+          color: {value: "random"},
+          shape: {
+              type: "circle",
+              stroke: {width: 0.3, color: "#ffffff"},
+              polygon: {nb_sides: 5},
+              image: {src: "./images/111.jpg", width: 1, height: 100}
+          },
+          opacity: {
+              value: 1.7,
+              random: true,
+              anim: {enable: false, speed: 0.6, opacity_min: 0.4, sync: false}
+          },
+          size: {
+              value: 4,
+              random: true,
+              anim: {enable: false, speed: 40, size_min: 0.1, sync: false}
+          },
+          line_linked: {
+              enable: false,
+              distance: 100,
+              color: "#a85e32",
+              opacity: 0.9,
+              width: 2.62
+          },
+          move: {
+              enable: true,
+              speed: 6,
+              direction: "none",
+              random: true,
+              straight: false,
+              out_mode: "out",
+              bounce: false,
+              attract: {enable: true, rotateX: 600, rotateY: 1200}
+          }
+      },
+      interactivity: {
+          detect_on: "canvas",
+          events: {
+              onhover: {enable: false, mode: "grab"},
+
+              resize: true
+          },
+          modes: {
+              grab: {distance: 120, line_linked: {opacity: 3}},
+              bubble: {distance: 400, size: 40, duration: 2, opacity: 8, speed: 3},
+              repulse: {distance: 200, duration: 0.4},
+              push: {particles_nb: 4},
+              remove: {particles_nb: 2}
+          }
+      },
+      retina_detect: true
+      });
+      var count_particles, stats, update;
+      stats = new Stats();
+      stats.setMode(0);
+      stats.domElement.style.position = "relateive";
+      stats.domElement.style.left = "0px";
+      stats.domElement.style.top = "0px";
+      document.body.appendChild(stats.domElement);
+      count_particles = document.querySelector(".js-count-particles");
+      update = function () {
+      stats.begin();
+      stats.end();
+      if (window.pJSDom[0].pJS.particles && window.pJSDom[0].pJS.particles.array) {
+          count_particles.innerText = window.pJSDom[0].pJS.particles.array.length;
+      }
+      updateTails();
+      requestAnimationFrame(update);
+
+
+    };
+     // Assuming you have initialized particles.js and have a way to access each particle
+
+// A function to create and return a tail element
+function createTailElement() {
+    var tail = document.createElement('div');
+    tail.className = 'particle-tail';
+    // Add any initial styles or attributes
+    document.body.appendChild(tail); // Append to the body or a specific container
+    return tail;
+}
+
+// Attach tail elements to particles
+particlesJS.particles.array.forEach(particle => {
+    particle.tail = createTailElement(); // Create and store the tail element
 });
-var count_particles, stats, update;
-stats = new Stats();
-stats.setMode(0);
-stats.domElement.style.position = "relative";
-stats.domElement.style.left = "0px";
-stats.domElement.style.top = "0px";
-document.body.appendChild(stats.domElement);
-count_particles = document.querySelector(".js-count-particles");
-update = function () {
-    stats.begin();
-    stats.end();
-    if (window.pJSDom[0].pJS.particles && window.pJSDom[0].pJS.particles.array) {
-        count_particles.innerText = window.pJSDom[0].pJS.particles.array.length;
-    }
-    requestAnimationFrame(update);
-};
-requestAnimationFrame(update);
+
+// Now each particle has a 'tail' property that is a DOM element
+
+   </script>
+
+<!-- script for input file-->
+<script> var isAdvancedUpload = function() {
+   var div = document.createElement('div');
+   return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+   }();
+
+   let draggableFileArea = document.querySelector(".drag-file-area");
+   let browseFileText = document.querySelector(".browse-files");
+   let uploadIcon = document.querySelector(".upload-icon");
+   let dragDropText = document.querySelector(".dynamic-message");
+   let fileInput = document.querySelector(".default-file-input");
+   let cannotUploadMessage = document.querySelector(".cannot-upload-message");
+   let cancelAlertButton = document.querySelector(".cancel-alert-button");
+   let uploadedFile = document.querySelector(".file-block");
+   let fileName = document.querySelector(".file-name");
+   let fileSize = document.querySelector(".file-size");
+   let progressBar = document.querySelector(".progress-bar");
+   let removeFileButton = document.querySelector(".remove-file-icon");
+   let uploadButton = document.querySelector(".upload-button");
+   let fileFlag = 0;
+
+   fileInput.addEventListener("click", () => {
+   fileInput.value = '';
+   console.log(fileInput.value);
+   });
+
+   fileInput.addEventListener("change", e => {
+   console.log(" > " + fileInput.value)
+   uploadIcon.innerHTML = 'check_circle';
+   dragDropText.innerHTML = 'File Dropped Successfully!';
+   document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"> <input type="file" class="default-file-input" style=""/> <span class="browse-files-text" style="top: 0;"> browse file</span></span>`;
+   uploadButton.innerHTML = `Upload`;
+   fileName.innerHTML = fileInput.files[0].name;
+   fileSize.innerHTML = (fileInput.files[0].size/1024).toFixed(1) + " KB";
+   uploadedFile.style.cssText = "display: flex;";
+   progressBar.style.width = 0;
+   fileFlag = 0;
+   });
+
+   uploadButton.addEventListener("click", () => {
+   let isFileUploaded = fileInput.value;
+   if(isFileUploaded != '') {
+   if (fileFlag == 0) {
+     		fileFlag = 1;
+     		var width = 0;
+     		var id = setInterval(frame, 50);
+     		function frame() {
+       			if (width >= 390) {
+         			clearInterval(id);
+   			uploadButton.innerHTML = `<span class="material-icons-outlined upload-button-icon"> check_circle </span> Uploaded`;
+       			} else {
+         			width += 5;
+         			progressBar.style.width = width + "px";
+       			}
+     		}
+   		}
+   } else {
+   cannotUploadMessage.style.cssText = "display: flex; animation: fadeIn linear 1.5s;";
+   }
+   });
+
+   cancelAlertButton.addEventListener("click", () => {
+   cannotUploadMessage.style.cssText = "display: none;";
+   });
+
+   if(isAdvancedUpload) {
+   ["drag", "dragstart", "dragend", "dragover", "dragenter", "dragleave", "drop"].forEach( evt =>
+   draggableFileArea.addEventListener(evt, e => {
+   	e.preventDefault();
+   	e.stopPropagation();
+   })
+   );
+
+   ["dragover", "dragenter"].forEach( evt => {
+   draggableFileArea.addEventListener(evt, e => {
+   	e.preventDefault();
+   	e.stopPropagation();
+   	uploadIcon.innerHTML = 'file_download';
+   	dragDropText.innerHTML = 'Drop your file here!';
+   });
+   });
+
+   draggableFileArea.addEventListener("drop", e => {
+   uploadIcon.innerHTML = 'check_circle';
+   dragDropText.innerHTML = 'File Dropped Successfully!';
+   document.querySelector(".label").innerHTML = `drag & drop or <span class="browse-files"> <input type="file" class="default-file-input" style=""/> <span class="browse-files-text" style="top: -23px; left: -20px;"> browse file</span> </span>`;
+   uploadButton.innerHTML = `Upload`;
+
+   let files = e.dataTransfer.files;
+   fileInput.files = files;
+   console.log(files[0].name + " " + files[0].size);
+   console.log(document.querySelector(".default-file-input").value);
+   fileName.innerHTML = files[0].name;
+   fileSize.innerHTML = (files[0].size/1024).toFixed(1) + " KB";
+   uploadedFile.style.cssText = "display: flex;";
+   progressBar.style.width = 0;
+   fileFlag = 0;
+   });
+   }
+
+   removeFileButton.addEventListener("click", () => {
+   uploadedFile.style.cssText = "display: none;";
+   fileInput.value = '';
+   uploadIcon.innerHTML = 'file_upload';
+   dragDropText.innerHTML = 'Drag & drop any file here';
+   document.querySelector(".label").innerHTML = `or <span class="browse-files"> <input type="file" class="default-file-input"/> <span class="browse-files-text">browse file</span> <span>from device</span> </span>`;
+   uploadButton.innerHTML = `Upload`;
+   });
 </script>
-
-</html>
-
-
