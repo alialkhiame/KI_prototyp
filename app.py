@@ -13,6 +13,8 @@ from io import BytesIO
 
 from sklearn.tree import DecisionTreeRegressor
 
+import news_api
+
 app = Flask(__name__)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -20,10 +22,13 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 # Create a logger
 logger = logging.getLogger(__name__)
 
-
 @app.route('/')
 def index():
-    return render_template('index.html')
+
+    # Call to newsApi script to get sumValue
+    sumValue = news_api.get_sum()
+
+    return render_template('index.html', sumValue=sumValue)
 
 
 @app.route('/upload', methods=['POST'])
