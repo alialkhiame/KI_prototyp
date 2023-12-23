@@ -49,10 +49,10 @@ def upload_file():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = pd.read_csv(request.files['data'])
+        logger.info("Clean Data")
         selected_columns = request.form['selected_columns']
+        data = pd.read_csv(request.files['data'])
         target_column = request.form['target_column']
-
         mean_value = data['Umsatz'].mean()
         cleaned_data = data.fillna(mean_value)
 

@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
    <head>
-      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
-      <title>Construction Data Analysis</title>
       <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
-     <script src="{{url_for('static', filename='backendComui.js')}}" defer></script>
-            <script src="{{url_for('static', filename='parickls.js')}}" defer></script>
-             <script src="{{url_for('static', filename='uploadFileHandling.js')}}" defer></script>
+      <script src="{{url_for('static', filename='parickls.js')}}" defer></script>
+      <script src="{{url_for('static', filename='backendComui.js')}}" defer></script>
+      <script src="{{url_for('static', filename='uploadFileHandling.js')}}" defer></script>
+       <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/fileInput.css') }}">
+      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+
+      <title>Construction Data Analysis</title>
    </head>
    <body>
 
-<div id="particles-js"></div>
+<!--<div id="particles-js"> -->
 <!-- stats - count particles -->
 
 
@@ -18,25 +20,33 @@
          <h1 style="color:white;">Construction Data Analysis Tool</h1>
 
          <!-- File Upload Form -->
-<form class="form-container" enctype='multipart/form-data'>
+<form class="form-container" enctype='multipart/form-data' id ="upload-form">
 	<div class="upload-files-container">
 		<div class="drag-file-area">
 			<span class="material-icons-outlined upload-icon"> file_upload </span>
 			<h3 class="dynamic-message"> Drag & drop any file here </h3>
-			<label class="label"> or <span class="browse-files"> <input type="file" class="default-file-input"/> <span class="browse-files-text">browse file</span> <span>from device</span> </span> </label>
+			<label class="label"> or <span class="browse-files">
+                <input type="file" class="default-file-input" id ="x"/>
+                <span class="browse-files-text">browse file</span>
+                <span>from device</span>
+            </span>
+            </label>
 		</div>
-		<span class="cannot-upload-message"> <span class="material-icons-outlined">error</span> Please select a file first <span class="material-icons-outlined cancel-alert-button">cancel</span> </span>
+		<span class="cannot-upload-message">
+            <span class="material-icons-outlined">error</span> Please select a file first
+            <span class="material-icons-outlined cancel-alert-button">cancel</span> </span>
 		<div class="file-block">
-			<div class="file-info"> <span class="material-icons-outlined file-icon">description</span> <span class="file-name"> </span> | <span class="file-size">  </span> </div>
+			<div class="file-info">
+                <span class="material-icons-outlined file-icon">description</span>
+                <span class="file-name"> </span>
+                | <span class="file-size"></span>
+            </div>
 			<span class="material-icons remove-file-icon">delete</span>
 			<div class="progress-bar"> </div>
 		</div>
 		<button type="button" class="upload-button"> Upload </button>
-	</div>
-</form>
-         <input type="button" class = "input" value="Upload Data" onclick="uploadFile()">
-         <!-- Variable Selection -->
-         <div id="variable-selection">
+
+      <div id="variable-selection">
             <!-- Checkboxes for variable selection will be populated here -->
          </div>
          <!-- Target Column Selection -->
@@ -45,9 +55,14 @@
             <!-- Options for target column will be populated here -->
          </select>
          <!-- Start Prediction Button -->
+       	</div>
+</form>
          <button class="custom-btn btn-12" onclick="startPrediction()"><span>Click!</span><span>Read More</span></button>
+
+         <!-- Variable Selection -->
          <!-- Result Display -->
          <div id="results"></div>
       </div>
-
+   <img id="resultImage" src="data:image/png;base64, [Your_Base64_String]" />
+</body>
    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
