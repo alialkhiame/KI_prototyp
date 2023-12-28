@@ -1,21 +1,21 @@
 
 let files=null;
 
-function uploadFile(fileInput, x) {
-    files = x;
+function uploadFile(fileInput,x) {
+    files = fileInput;
 console.log("uploadFile Call");
    // let fileInput = document.querySelector(".default-file-input");
 
-    if (!fileInput) {
+    if (!files) {
         console.error('File input element not found');
         return;
     }
 
 
     var formData = new FormData(document.getElementById('upload-form'));
-    formData.append('file', fileInput);
+    formData.append('file', files);
 
-    console.log("i am here"+fileInput);
+    console.log("i am here"+files);
     fetch('/upload', {
         method: 'POST',
         body: formData
@@ -58,9 +58,9 @@ console.log("uploadFile Call");
 function startPrediction() {
     var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
     var targetColumn = document.getElementById('target-column').value;
-    var formData = new FormData();
-    let fileInput = files;
 
+    let fileInput = files;
+   var formData = new FormData(document.getElementById('upload-form'));
 
 
     console.log("Selected Variables:", selectedVariables);
@@ -68,7 +68,9 @@ function startPrediction() {
     console.log("File Input Element:", fileInput);
 
 
-    formData.append('data', fileInput);
+   formData.append('selected_columns','["Jahre", "Umsatz"]' );
+   formData.append('target_column',targetColumn );
+    formData.append('file', fileInput);
 
 
     console.log("Form Data:", formData); // Check the FormData contents
@@ -84,14 +86,14 @@ function startPrediction() {
   function displayResults(data) {
 
             console.log("my Data"+data)
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
-            var resultsDiv = document.getElementById('results');
-             var resultsDiv2 = document.getElementById('asd');
-            resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data + '" />';
-            resultsDiv2.innerHTML = data;
-            resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data.plot_url + '" />';
+
+
+var resultsDiv = document.getElementById('resultImage');
+
+// Assuming 'data' is an object with 'plot_url' as a property containing the base64 string
+// and another base64 string directly in 'data'
+resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data + '" />' +
+                       '<img src="data:image/png;base64,' + data.plot_url + '" />';
+
             // Display other results as needed
         }

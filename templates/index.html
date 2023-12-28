@@ -5,8 +5,8 @@
       <script src="{{url_for('static', filename='parickls.js')}}" defer></script>
       <script src="{{url_for('static', filename='backendComui.js')}}" defer></script>
       <script src="{{url_for('static', filename='uploadFileHandling.js')}}" defer></script>
-       <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/fileInput.css') }}">
-      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/fileInput.css') }}">
+     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
 
       <title>Construction Data Analysis</title>
    </head>
@@ -63,6 +63,7 @@
          <!-- Result Display -->
          <div id="results"></div>
       </div>
-   <img id="resultImage" src="data:image/png;base64, [Your_Base64_String]" />
+ <div id="resultImage"></div>
+
 </body>
    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->

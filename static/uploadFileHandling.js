@@ -66,6 +66,7 @@ if(isAdvancedUpload) {
 		draggableFileArea.addEventListener(evt, e => {
 			e.preventDefault();
 			e.stopPropagation();
+
 			uploadIcon.innerHTML = 'file_download';
 			dragDropText.innerHTML = 'Drop your file here!';
 		});
@@ -81,7 +82,7 @@ if(isAdvancedUpload) {
 
    fileInput.files = files;
 		console.log("Files are ");
-		console.log(files[0].name + " " + files[0].size);
+		console.log(files[0].name + " " + files[0].size+" "+ fileInput.value);
 
 		fileName.innerHTML = files[0].name;
 		fileSize.innerHTML = (files[0].size/1024).toFixed(1) + " KB";
@@ -105,6 +106,6 @@ function s(files){
 	console.log("s()");
 x=files;
 	console.log(files[0]);
-	uploadFile(files[0],x);
+	uploadFile(files[0], x);
 
 }
