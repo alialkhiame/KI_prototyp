@@ -118,6 +118,7 @@ fileReader.onload = function() {
     const result = dataset.split('\n').map(data => data.split(','));
 	console.log(result);
   displayDataTable(result);
+
 };
 
 

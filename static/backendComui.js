@@ -59,6 +59,7 @@ function startPrediction() {
      var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
      var targetColumn = document.getElementById('target-column').value;
 
+
     let fileInput = files;
   var formData = new FormData();
 
@@ -82,6 +83,18 @@ function startPrediction() {
     .then(data => {
         displayResults(data);
     }).catch(error => console.error('Error:', error));
+        var form = document.getElementById('upload-form');
+          var dataTa = document.getElementById('dataTable');
+          var p = document.getElementById('h');
+            var pp=  document.getElementById('hh');
+            var ppp = document.getElementById('overall-sentiment');
+            var pppp=  document.getElementById('overall-score');
+            p.remove();
+            pp.remove();
+  ppp.remove();
+            pppp.remove();
+	form.remove();
+	dataTa.remove();
 }
   function displayResults(data) {
 

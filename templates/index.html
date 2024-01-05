@@ -18,7 +18,7 @@
 
    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
       <div class="container">
-         <h1 style="color:white;">Construction Data Analysis Tool</h1>
+         <h1 id="hh" style="color:white;">Construction Data Analysis Tool</h1>
 
          <!-- File Upload Form -->
 <form class="form-container" enctype='multipart/form-data' id ="upload-form">
@@ -58,11 +58,11 @@
          <!-- Start Prediction Button -->
        	</div>
 </form>
-         <button class="custom-btn btn-12" onclick="startPrediction()"><span>Click!</span><span>Read More</span></button>
+         <button class="custom-btn btn-12 " id ="h" onclick="startPrediction()">Click!</button>
 <div id="dataTable" class="dataTable"></div>
 
-             <p class="overall-sentiment">Overall Sentiment: {% if sumValue >= 0 %}Positive{% else %}Negative{% endif %}</p><hr>
-        <p class="overall-score">Overall Score: {{ sumValue }}</p>
+             <p class="overall-sentiment" id = "overall-sentiment">Overall Sentiment: {% if sumValue >= 0 %}Positive{% else %}Negative{% endif %}</p><hr>
+        <p class="overall-score" id = "overall-score">Overall Score: {{ sumValue }}</p>
 
 
          <!-- Result Display -->
