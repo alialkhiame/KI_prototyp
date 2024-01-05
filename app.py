@@ -4,6 +4,7 @@ import base64
 from io import BytesIO
 import pandas as pd
 import matplotlib.pyplot as plt
+import news_api
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -56,7 +57,9 @@ def plot_results(results):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Call to newsApi script to get sumValue
+    sumValue = news_api.get_sum()
+    return render_template('index.html', sumValue=sumValue)
 
 
 @app.route('/upload', methods=['POST'])

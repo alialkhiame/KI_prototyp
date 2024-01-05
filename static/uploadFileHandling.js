@@ -107,5 +107,19 @@ function s(files){
 x=files;
 	console.log(files[0]);
 	uploadFile(files[0], x);
+	const file = files[0];
+const fileReader = new FileReader();
+
+fileReader.readAsText(file);
+
+fileReader.onload = function() {
+    const dataset = fileReader.result;
+
+    const result = dataset.split('\n').map(data => data.split(','));
+	console.log(result);
+  displayDataTable(result);
+};
+
+
 
 }

@@ -1,28 +1,28 @@
  particlesJS("particles-js", {
       particles: {
-          number: {value: 5, density: {enable: true, value_area: 200}},
+          number: {value: 5, density: {enable: false, value_area: 800}},
           color: {value: "random"},
           shape: {
-              type: "circle",
-              stroke: {width: 0.3, color: "#ffffff"},
+              type: "star",
+              stroke: {width: 1.4, color: "#ffffff"},
               polygon: {nb_sides: 5},
               image: {src: "./images/111.jpg", width: 1, height: 100}
           },
           opacity: {
               value: 1.7,
               random: true,
-              anim: {enable: false, speed: 0.6, opacity_min: 0.4, sync: false}
+              anim: {enable: false, speed: 0.8, opacity_min: 0.4, sync: false}
           },
           size: {
-              value: 4,
-              random: true,
-              anim: {enable: false, speed: 40, size_min: 0.1, sync: false}
+              value: 3.5,
+              random: false,
+              anim: {enable: false, speed: 40, size_min: 2.1, sync: false}
           },
           line_linked: {
               enable: false,
               distance: 100,
               color: "#a85e32",
-              opacity: 0.9,
+              opacity: 1.9,
               width: 2.62
           },
           move: {
@@ -53,39 +53,16 @@
       },
       retina_detect: true
       });
-      var count_particles, stats, update;
-      stats = new Stats();
-      stats.setMode(0);
-      stats.domElement.style.position = "relateive";
-      stats.domElement.style.left = "0px";
-      stats.domElement.style.top = "0px";
-      document.body.appendChild(stats.domElement);
-      count_particles = document.querySelector(".js-count-particles");
+
       update = function () {
       stats.begin();
       stats.end();
-      if (window.pJSDom[0].pJS.particles && window.pJSDom[0].pJS.particles.array) {
-          count_particles.innerText = window.pJSDom[0].pJS.particles.array.length;
-      }
-      updateTails();
+
+
       requestAnimationFrame(update);
 
 
     };
      // Assuming you have initialized particles.js and have a way to access each particle
 
-// A function to create and return a tail element
-function createTailElement() {
-    var tail = document.createElement('div');
-    tail.className = 'particle-tail';
-    // Add any initial styles or attributes
-    document.body.appendChild(tail); // Append to the body or a specific container
-    return tail;
-}
 
-// Attach tail elements to particles
-particlesJS.particles.array.forEach(particle => {
-    particle.tail = createTailElement(); // Create and store the tail element
-});
-
-// Now each particle has a 'tail' property that is a DOM element

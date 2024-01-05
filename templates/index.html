@@ -4,6 +4,7 @@
       <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
       <script src="{{url_for('static', filename='parickls.js')}}" defer></script>
       <script src="{{url_for('static', filename='backendComui.js')}}" defer></script>
+            <script src="{{url_for('static', filename='showDataTabel.js')}}" defer></script>
       <script src="{{url_for('static', filename='uploadFileHandling.js')}}" defer></script>
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/fileInput.css') }}">
      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
@@ -12,10 +13,10 @@
    </head>
    <body>
 
-<!--<div id="particles-js">-->
-<!-- stats - count particles -->
 
 
+
+   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
       <div class="container">
          <h1 style="color:white;">Construction Data Analysis Tool</h1>
 
@@ -58,12 +59,16 @@
        	</div>
 </form>
          <button class="custom-btn btn-12" onclick="startPrediction()"><span>Click!</span><span>Read More</span></button>
+<div id="dataTable" class="dataTable"></div>
 
-         <!-- Variable Selection -->
+             <p class="overall-sentiment">Overall Sentiment: {% if sumValue >= 0 %}Positive{% else %}Negative{% endif %}</p><hr>
+        <p class="overall-score">Overall Score: {{ sumValue }}</p>
+
+
          <!-- Result Display -->
          <div id="results"></div>
       </div>
  <div id="resultImage"></div>
-
+<div id="particles-js"></div>
 </body>
-   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- stats.js lib -->
+

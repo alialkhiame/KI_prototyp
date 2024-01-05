@@ -92,7 +92,7 @@ var resultsDiv = document.getElementById('resultImage');
 
 // Assuming 'data' is an object with 'plot_url' as a property containing the base64 string
 // and another base64 string directly in 'data'
-resultsDiv.innerHTML = '<img src="data:image/png;base64,' + data + '" />' +
+resultsDiv.innerHTML =
                        '<img src="data:image/png;base64,' + data.plot_url + '" />';
 
             // Display other results as needed

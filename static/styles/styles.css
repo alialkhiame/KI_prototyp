@@ -1,55 +1,104 @@
 
-body{
-	 background-image: url('/static/images/background.jpg');
-background-repeat: no-repeat;
-	width: 100vh;
-	color:white;
-	height: 100vh;
-	background-size: cover;
+body {
+    background-image: url('/static/images/background.jpg');
+    background-repeat: no-repeat;
+    width: 100vh;
+    height: 100vh;
+    color: white;
+
+    background-size: cover;
 }
 
 
 #particles-js canvas {
     filter: blur(2px); /* Blur effect for the tail */
- position: relative;
+    position: relative;
 }
 
 .particle {
     /* Gradient for the tail */
 }
+
 .particle-tail {
 
     width: 2px;
     height: 20px;
-	color: red;
-	background-color: red;
+    color: red;
+    background-color: red;
     background: linear-gradient(rgba(255, 0, 0, 1), rgba(255, 0, 0, 0));
     /* Additional styling as needed */
 }
 
 
-.container{
-	display: flex;
-   	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-
-	margin: 0;
-margin-left: 100px;
+.container {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin:10%;
 }
 
 
-
 .upload-button {
-	font-family: 'Montserrat';
-	background-color: #7b2cbf;
-	color: #f7fff7;
-	display: flex;
-	align-items: center;
-	font-size: 18px;
-	border: none;
-	border-radius: 20px;
-	margin: 10px;
-	padding: 7.5px 50px;
-	cursor: pointer;
+    font-family: 'Montserrat';
+    background-color: #7b2cbf;
+    color: #f7fff7;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    border: none;
+    border-radius: 20px;
+    margin: 10px;
+    padding: 7.5px 50px;
+    cursor: pointer;
+}
+
+#dataTable {
+    flex: 1;
+}
+
+.dataTable {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.dataTable th, .dataTable td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.dataTable th {
+    background-color: black;
+}
+
+#variable-selection, #results {
+    margin-top: 20px;
+}
+
+.overall-sentiment {
+    flex: 1;
+    font-weight: bold;
+    color: #ffffff; /* Dark green for positive sentiment */
+}
+
+.overall-score {
+    flex: 1;
+    font-style: italic;
+    color: #ffffff; /* Dark red for negative sentiment */
+}
+
+canvas {
+    overflow-clip-margin: content-box;
+    overflow: clip;
+}
+
+
+canvas{
+    z-index: -11;
+
 }
