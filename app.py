@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 def read_and_clean_data(file):
     try:
+        logger.info("Reading the data");
         data = pd.read_csv(file.stream)
         mean_value = data['Umsatz'].mean()
         return data.fillna(mean_value)
@@ -66,6 +67,7 @@ def upload_file():
     try:
         file = request.files['file']
         cleaned_data = read_and_clean_data(file)
+        logger.info(cleaned_data)
         return jsonify(columns=cleaned_data.columns.tolist())
     except Exception as e:
         return jsonify(error=str(e)), 400
@@ -79,25 +81,22 @@ def predict_route():
 
         file = request.files['file']
         cleaned_data = read_and_clean_data(file)
+        logger.info(cleaned_data)
         target_column = request.form['target_column']
 
         selected_columns = request.form['selected_columns']
         logger.info(f"Selected columns: {selected_columns}")
         logger.info(f"Target column: {target_column}")
-        if isinstance(selected_columns, str):
-            try:
-                selected_columns = json.loads(selected_columns)
-            except json.JSONDecodeError:
-                return jsonify(error="Invalid format for selected_columns"), 400
 
-
+        logger.info(selected_columns)
+        logger.info(f"Selected columns: {selected_columns}")
+        selected_columns = json.loads(selected_columns)
         X = cleaned_data[selected_columns]
         y = cleaned_data[target_column]
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
         models = train_models(X_train, y_train)
         results = predict(models, X_test)
-
         plot_url = plot_results(results)
         results_html = results.to_html()
 

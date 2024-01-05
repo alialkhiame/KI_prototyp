@@ -56,19 +56,19 @@ console.log("uploadFile Call");
 
       }
 function startPrediction() {
-    var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
-    var targetColumn = document.getElementById('target-column').value;
+     var selectedVariables = Array.from(document.querySelectorAll('input[name="variables"]:checked')).map(cb => cb.value);
+     var targetColumn = document.getElementById('target-column').value;
 
     let fileInput = files;
-   var formData = new FormData(document.getElementById('upload-form'));
+  var formData = new FormData();
 
 
-    console.log("Selected Variables:", selectedVariables);
+    console.log("Selected Variables:",JSON.stringify(selectedVariables));
     console.log("Target Column:", targetColumn);
     console.log("File Input Element:", fileInput);
 
 
-   formData.append('selected_columns','["Jahre", "Umsatz"]' );
+   formData.append('selected_columns',JSON.stringify(selectedVariables) );
    formData.append('target_column',targetColumn );
     formData.append('file', fileInput);
 
