@@ -5,6 +5,7 @@ from io import BytesIO
 import pandas as pd
 import matplotlib.pyplot as plt
 import news_api
+import cleanData as cD
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -12,7 +13,6 @@ from sklearn.tree import DecisionTreeRegressor
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -20,6 +20,7 @@ def read_and_clean_data(file):
     try:
         logger.info("Reading the data");
         data = pd.read_csv(file.stream)
+        data = data.read().decode('utf-8')
         mean_value = data['Umsatz'].mean()
         return data.fillna(mean_value)
     except Exception as e:
@@ -27,14 +28,14 @@ def read_and_clean_data(file):
         raise
 
 
-def train_models(X_train, y_train):
+def train_models(x_train, y_train):
     models = {
         'Linear_Regression': LinearRegression(),
         'Decision_Tree': DecisionTreeRegressor(),
         'Random_Forest': RandomForestRegressor()
     }
     for name, model in models.items():
-        model.fit(X_train, y_train)
+        model.fit(x_train, y_train)
     return models
 
 
@@ -81,25 +82,26 @@ def predict_route():
     try:
         if 'file' not in request.files:
             return jsonify(error="No file part"), 400
-
         file = request.files['file']
         cleaned_data = read_and_clean_data(file)
         logger.info(cleaned_data)
+
+        logger.info("i ama here ")
+        logger.info(cleaned_data)
+
         target_column = request.form['target_column']
 
         selected_columns = request.form['selected_columns']
         logger.info(f"Selected columns: {selected_columns}")
         logger.info(f"Target column: {target_column}")
 
-        logger.info(selected_columns)
-        logger.info(f"Selected columns: {selected_columns}")
         selected_columns = json.loads(selected_columns)
-        X = cleaned_data[selected_columns]
+        x = cleaned_data[selected_columns]
         y = cleaned_data[target_column]
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-        models = train_models(X_train, y_train)
-        results = predict(models, X_test)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+        models = train_models(x_train, y_train)
+        results = predict(models, x_test)
         plot_url = plot_results(results)
         results_html = results.to_html()
 
