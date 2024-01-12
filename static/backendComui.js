@@ -81,6 +81,7 @@ function startPrediction() {
         body: formData
     }).then(response => response.json())
         .then(data => {
+            console.log(data)
             displayResults(data);
         }).catch(error => console.error('Error:', error));
     var form = document.getElementById('upload-form');
@@ -103,11 +104,11 @@ function displayResults(data) {
 
 
     var resultsDiv = document.getElementById('resultImage');
-
+    var resultsDiv2 = document.getElementById('resultdata');
 // Assuming 'data' is an object with 'plot_url' as a property containing the base64 string
 // and another base64 string directly in 'data'
     resultsDiv.innerHTML =
         '<img src="data:image/png;base64,' + data.plot_url + '" />';
-
+ resultsDiv2.innerHTML =data.results_html;
     // Display other results as needed
 }

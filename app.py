@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 def read_and_clean_data(file):
     try:
-        logger.info("Reading the data");
+        logger.info("Reading the data")
         data = pd.read_csv(file.stream)
-        data = data.read().decode('utf-8')
+
         mean_value = data['Umsatz'].mean()
         return data.fillna(mean_value)
     except Exception as e:
