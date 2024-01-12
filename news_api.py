@@ -36,8 +36,8 @@ def analyze_articles(articles, sumValue):
         else:
             sentiment = "Neutral"
 
-        print(f"{i} posted on {time}")
-        print(f"Title: {title}\nSentiment: {sentiment}\nScore: {sentiment_score['compound']}\n")
+        #print(f"{i} posted on {time}")
+        #print(f"Title: {title}\nSentiment: {sentiment}\nScore: {sentiment_score['compound']}\n")
         i += 1
 
     return sumValue  # Return the updated sumValue
@@ -65,7 +65,7 @@ sumValue = 0
 if articles:
     sumValue = analyze_articles(articles['articles'], sumValue)
     overall_sentiment = "Positive" if sumValue >= 0 else "Negative"
-    print(f"Overall Sentiment: {overall_sentiment}, Overall Score: {sumValue}")
+  #  print(f"Overall Sentiment: {overall_sentiment}, Overall Score: {sumValue}")
 else:
     print("Failed to fetch news articles")
 

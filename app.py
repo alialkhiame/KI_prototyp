@@ -13,18 +13,20 @@ from sklearn.tree import DecisionTreeRegressor
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
-logger = logging.getLogger(__name__)
+
+
+krieg = 0
 
 
 def read_and_clean_data(file):
     try:
-        logger.info("Reading the data")
+        logging.info("Reading the data")
         data = pd.read_csv(file.stream)
 
         mean_value = data['Umsatz'].mean()
         return data.fillna(mean_value)
     except Exception as e:
-        logger.error(f"Error reading data: {e}")
+        logging.error(f"Error reading data: {e}")
         raise
 
 
@@ -41,6 +43,7 @@ def train_models(x_train, y_train):
 
 def predict(models, X_test):
     predictions = {name: model.predict(X_test) for name, model in models.items()}
+
     return pd.DataFrame(predictions)
 
 
@@ -60,6 +63,7 @@ def plot_results(results):
 def index():
     # Call to newsApi script to get sumValue
     sumValue = news_api.get_sum()
+    krieg = sumValue
     return render_template('index.html', sumValue=sumValue)
 
 
@@ -71,7 +75,7 @@ def upload_file():
     try:
         file = request.files['file']
         cleaned_data = read_and_clean_data(file)
-        logger.info(cleaned_data)
+        logging.info(cleaned_data)
         return jsonify(columns=cleaned_data.columns.tolist())
     except Exception as e:
         return jsonify(error=str(e)), 400
@@ -84,16 +88,16 @@ def predict_route():
             return jsonify(error="No file part"), 400
         file = request.files['file']
         cleaned_data = read_and_clean_data(file)
-        logger.info(cleaned_data)
+        logging.info(cleaned_data)
 
-        logger.info("i ama here ")
-        logger.info(cleaned_data)
+        logging.debug("i ama here ")
+        logging.info(cleaned_data)
 
         target_column = request.form['target_column']
 
         selected_columns = request.form['selected_columns']
-        logger.info(f"Selected columns: {selected_columns}")
-        logger.info(f"Target column: {target_column}")
+        logging.info(f"Selected columns: {selected_columns}")
+        logging.info(f"Target column: {target_column}")
 
         selected_columns = json.loads(selected_columns)
         x = cleaned_data[selected_columns]
@@ -104,10 +108,11 @@ def predict_route():
         results = predict(models, x_test)
         plot_url = plot_results(results)
         results_html = results.to_html()
+        logging.info(results)
 
         return jsonify(predictions=results.to_dict(), plot_url=plot_url, results_html=results_html)
     except Exception as e:
-        logger.error(f"Prediction error: {e}")
+        logging.error(f"Prediction error: {e}")
         return jsonify(error="Error in prediction"), 400
 
 
