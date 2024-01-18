@@ -14,17 +14,33 @@ from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
-
 krieg = 0
 
 
-def read_and_clean_data(file):
+def read_and_clean_data(file, selected_colums):
     try:
         logging.info("Reading the data")
-        data = pd.read_csv(file.stream)
+        umsatz_data = pd.read_csv(file.stream, delimiter=';', decimal=',')
+        column_to_check = 'Umsatz'
+        percentage = 90
 
-        mean_value = data['Umsatz'].mean()
-        return data.fillna(mean_value)
+        # Convert the column to numeric values or remove it
+        umsatz_data[column_to_check] = pd.to_numeric(umsatz_data[column_to_check], errors='coerce')
+        umsatz_data.dropna(subset=[column_to_check], inplace=True)
+
+        # Calculate average value and define lower and upper bounds
+        average_value = umsatz_data[column_to_check].mean()
+        lower_bound = average_value - (average_value * percentage / 100)
+        upper_bound = average_value + (average_value * percentage / 100)
+
+        # Filter out data outside the bounds
+        umsatz_data = umsatz_data[
+            (umsatz_data[column_to_check] >= lower_bound) & (umsatz_data[column_to_check] <= upper_bound)
+            ]
+        logging.debug(umsatz_data)
+
+        mean_value = umsatz_data['Umsatz'].mean()
+        return umsatz_data.fillna(mean_value)
     except Exception as e:
         logging.error(f"Error reading data: {e}")
         raise
@@ -74,7 +90,7 @@ def upload_file():
 
     try:
         file = request.files['file']
-        cleaned_data = read_and_clean_data(file)
+        cleaned_data = read_and_clean_data(file, None)
         logging.info(cleaned_data)
         return jsonify(columns=cleaned_data.columns.tolist())
     except Exception as e:
@@ -87,7 +103,7 @@ def predict_route():
         if 'file' not in request.files:
             return jsonify(error="No file part"), 400
         file = request.files['file']
-        cleaned_data = read_and_clean_data(file)
+        cleaned_data = read_and_clean_data(file, None)
         logging.info(cleaned_data)
 
         logging.debug("i ama here ")

@@ -105,10 +105,12 @@ function displayResults(data) {
 
     var resultsDiv = document.getElementById('resultImage');
     var resultsDiv2 = document.getElementById('resultdata');
+       var resultsDiv3 = document.getElementById('newModel');
 // Assuming 'data' is an object with 'plot_url' as a property containing the base64 string
 // and another base64 string directly in 'data'
     resultsDiv.innerHTML =
         '<img src="data:image/png;base64,' + data.plot_url + '" />';
  resultsDiv2.innerHTML =data.results_html;
+         resultsDiv3.innerHTML = '<img src="data:image/png;base64,' + data.predictionsNero + '" />';
     // Display other results as needed
 }
