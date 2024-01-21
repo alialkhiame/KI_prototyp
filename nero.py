@@ -59,7 +59,7 @@ class NeuralNetwork:
 
 # Example usage:
 nn = NeuralNetwork(num_classes=3)
-x, y = nn.load_data('umsatz_data.csv')
+x, y = nn.load_data('datsa.csv')
 nn.create_model()
 history = nn.train(x, y, epochs=10, batch_size=32)
 nn.plot_results(history)
