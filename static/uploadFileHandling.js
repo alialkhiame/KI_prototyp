@@ -91,7 +91,7 @@ function s(files) {
     fileReader.onload = function () {
         const dataset = fileReader.result;
 
-        const result = dataset.split('\n').map(data => data.split(','));
+        const result = dataset.split('\n').map(data => data.split(';'));
 
         displayDataTable(result);
 

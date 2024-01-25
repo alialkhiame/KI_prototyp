@@ -61,15 +61,19 @@ function populateVariableSelection(columns) {
         // Option for target column
         var option = document.createElement('option');
 
+            label.style.color = 'black';
+
         label.style.color='black';
         option.style.padding = '22px';
         option.style.margin = '22px';
         option.value = column;
         option.text = column;
         targetColumnSelect.style.display='block';
+
         targetColumnSelect.appendChild(option);
 
     });
+    document.getElementById("p1").innerHTML = "Select The Target Feld";
 
 }
 
