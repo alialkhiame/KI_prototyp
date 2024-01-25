@@ -14,6 +14,7 @@ from flask import Flask, request, jsonify, render_template
 from nero import nero
 import logging
 import cleanData
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
@@ -53,9 +54,9 @@ def plot_results(results):
 @app.route('/')
 def index():
     # Call to newsApi script to get sumValue
-   # sumValue = news_api.get_sum()
-   # krieg = sumValue
-    sumValue=2
+    # sumValue = news_api.get_sum()
+    # krieg = sumValue
+    sumValue = 2
     return render_template('index.html', sumValue=sumValue)
 
 
@@ -66,7 +67,7 @@ def upload_file():
 
     try:
         file = request.files['file']
-        data_cleaner = cleanData.CleanData(file)
+        data_cleaner = cD.CleanData(file)
         cleaned_data = data_cleaner.cleaned_data
         logging.info(cleaned_data)
         return jsonify(columns=cleaned_data.columns.tolist())
@@ -80,10 +81,14 @@ def predict_route():
         if 'file' not in request.files:
             return jsonify(error="No file part"), 400
         file = request.files['file']
+        target_column = request.form['target_column']
+
+        selected_columns = request.form['selected_columns']
+
         data_cleaner = cleanData.CleanData(file)
         cleaned_data = data_cleaner.cleaned_data
         logging.info(cleaned_data)
-
+        logging.info(data_cleaner)
         logging.debug("i ama here ")
         logging.info(cleaned_data)
 
@@ -98,7 +103,7 @@ def predict_route():
         y = cleaned_data[target_column]
 
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-       # callNero(x_train, y_train, x_test)
+        # callNero(x_train, y_train, x_test)
         models = train_models(x_train, y_train)
         results = predict(models, x_test)
         plot_url = plot_results(results)
