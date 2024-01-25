@@ -39,6 +39,18 @@ function populateVariableSelection(columns) {
         checkbox.value = column;
 
         var label = document.createElement('label');
+
+// Style the checkbox
+        checkbox.style.cursor = 'pointer';
+        checkbox.style.margin = '10px';
+// Add other styles as needed
+
+        var label = document.createElement('label');
+        label.htmlFor = column;
+
+// Style the label
+        label.style.color = 'blue';
+        label.style.fontWeight = 'bold';
         label.htmlFor = column;
         label.appendChild(document.createTextNode(column));
 
@@ -48,9 +60,15 @@ function populateVariableSelection(columns) {
 
         // Option for target column
         var option = document.createElement('option');
+
+        label.style.color='black';
+        option.style.padding = '22px';
+        option.style.margin = '22px';
         option.value = column;
         option.text = column;
+        targetColumnSelect.style.display='block';
         targetColumnSelect.appendChild(option);
+
     });
 
 }
@@ -105,12 +123,12 @@ function displayResults(data) {
 
     var resultsDiv = document.getElementById('resultImage');
     var resultsDiv2 = document.getElementById('resultdata');
-       var resultsDiv3 = document.getElementById('newModel');
+    var resultsDiv3 = document.getElementById('newModel');
 // Assuming 'data' is an object with 'plot_url' as a property containing the base64 string
 // and another base64 string directly in 'data'
     resultsDiv.innerHTML =
         '<img src="data:image/png;base64,' + data.plot_url + '" />';
- resultsDiv2.innerHTML =data.results_html;
-         resultsDiv3.innerHTML = '<img src="data:image/png;base64,' + data.predictionsNero + '" />';
+    resultsDiv2.innerHTML = data.results_html;
+    resultsDiv3.innerHTML = '<img src="data:image/png;base64,' + data.predictionsNero + '" />';
     // Display other results as needed
 }
