@@ -22,7 +22,7 @@ class nero:
 
     def train_model(self, X, y, epochs=10):
         if self.model is None:
-            self.create_model(X.shape[1])
+            self.create_model(X.shape[4])
         self.model.fit(X, y, epochs=epochs)
         self.model.save(self.model_save_path)
 
