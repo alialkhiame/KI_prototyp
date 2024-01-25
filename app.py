@@ -11,39 +11,14 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from flask import Flask, request, jsonify, render_template
+from nero import nero
+import logging
+import cleanData
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 
 krieg = 0
-
-
-def read_and_clean_data(file, selected_colums):
-    try:
-        logging.info("Reading the data")
-        umsatz_data = pd.read_csv(file.stream, delimiter=';', decimal=',')
-        column_to_check = 'Umsatz'
-        percentage = 90
-
-        # Convert the column to numeric values or remove it
-        umsatz_data[column_to_check] = pd.to_numeric(umsatz_data[column_to_check], errors='coerce')
-        umsatz_data.dropna(subset=[column_to_check], inplace=True)
-
-        # Calculate average value and define lower and upper bounds
-        average_value = umsatz_data[column_to_check].mean()
-        lower_bound = average_value - (average_value * percentage / 100)
-        upper_bound = average_value + (average_value * percentage / 100)
-
-        # Filter out data outside the bounds
-        umsatz_data = umsatz_data[
-            (umsatz_data[column_to_check] >= lower_bound) & (umsatz_data[column_to_check] <= upper_bound)
-            ]
-        logging.debug(umsatz_data)
-
-        mean_value = umsatz_data['Umsatz'].mean()
-        return umsatz_data.fillna(mean_value)
-    except Exception as e:
-        logging.error(f"Error reading data: {e}")
-        raise
 
 
 def train_models(x_train, y_train):
@@ -78,8 +53,9 @@ def plot_results(results):
 @app.route('/')
 def index():
     # Call to newsApi script to get sumValue
-    sumValue = news_api.get_sum()
-    krieg = sumValue
+   # sumValue = news_api.get_sum()
+   # krieg = sumValue
+    sumValue=2
     return render_template('index.html', sumValue=sumValue)
 
 
@@ -90,7 +66,8 @@ def upload_file():
 
     try:
         file = request.files['file']
-        cleaned_data = read_and_clean_data(file, None)
+        data_cleaner = cleanData.CleanData(file)
+        cleaned_data = data_cleaner.cleaned_data
         logging.info(cleaned_data)
         return jsonify(columns=cleaned_data.columns.tolist())
     except Exception as e:
@@ -103,7 +80,8 @@ def predict_route():
         if 'file' not in request.files:
             return jsonify(error="No file part"), 400
         file = request.files['file']
-        cleaned_data = read_and_clean_data(file, None)
+        data_cleaner = cleanData.CleanData(file)
+        cleaned_data = data_cleaner.cleaned_data
         logging.info(cleaned_data)
 
         logging.debug("i ama here ")
@@ -120,6 +98,7 @@ def predict_route():
         y = cleaned_data[target_column]
 
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+       # callNero(x_train, y_train, x_test)
         models = train_models(x_train, y_train)
         results = predict(models, x_test)
         plot_url = plot_results(results)
@@ -130,6 +109,14 @@ def predict_route():
     except Exception as e:
         logging.error(f"Prediction error: {e}")
         return jsonify(error="Error in prediction"), 400
+
+
+def callNero(X_train, y_train, X_test):
+    umsatz_model = nero()
+    umsatz_model.train_model(X_train, y_train)
+    predictions = umsatz_model.predict(X_test)
+    print(predictions)
+    return predictions
 
 
 if __name__ == '__main__':

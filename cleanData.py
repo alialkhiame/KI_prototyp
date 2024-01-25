@@ -1,55 +1,52 @@
 import pandas as pd
 import logging
-from io import StringIO
 
+class CleanData:
+    def __init__(self, file_obj):
+        self.file_obj = file_obj
+        self.original_data_head = None
+        self.cleaned_data = self._read_and_clean_data()
 
-def cleanData(data):
-    """
-    Cleans the provided CSV data.
+    def _read_and_clean_data(self):
+        try:
+            logging.info("Reading and cleaning the data")
 
-    It includes removing rows with missing values in the 'Umsatz' column,
-    converting the 'Umsatz' column to numeric values, and filtering out outliers
-    based on a percentage threshold.
+            # Read the data from file object
+            self.file_obj.seek(0)  # Reset file pointer to the beginning
+            original_data = pd.read_csv(self.file_obj)
 
-    Args:
-        data (str): CSV data as a string.
+            # Keep a copy of the original head
+            self.original_data_head = original_data.head()
 
-    Returns:
-        pd.DataFrame: Cleaned DataFrame.
-    """
+            # Clean the data
+            return self._clean_data(original_data)
 
-    # Load revenue data from a CSV string
-    if not data:
-        logging.error("No data provided.")
-        return pd.DataFrame()
+        except Exception as e:
+            logging.error(f"Error processing data: {e}")
+            raise
 
-    try:
-        umsatz_data = pd.read_csv(StringIO(data))
-    except Exception as e:
-        logging.error(f"Error reading data: {e}")
-        return pd.DataFrame()
+    def _clean_data(self, data):
+        """
+        Cleans the provided DataFrame.
+        """
+        if data.empty:
+            logging.error("No data provided.")
+            return pd.DataFrame()
 
-    logging.info(data)
+        try:
+            # Remove rows with missing values
+            data = data.dropna()
 
-    # Remove rows with missing values
-    umsatz_data.dropna(inplace=True)
+            # Iterate through columns and clean
+            for column in data.columns:
+                # Attempt to convert each column to numeric values
+                data[column] = pd.to_numeric(data[column], errors='coerce')
 
-    # Check and clean possible outliers or implausible values
-    column_to_check = 'Umsatz'
-    percentage = 90
+            # Drop rows where any column is NaN after conversion
+            cleaned_data = data.dropna()
 
-    # Convert the column to numeric values or remove it
-    umsatz_data[column_to_check] = pd.to_numeric(umsatz_data[column_to_check], errors='coerce')
-    umsatz_data.dropna(subset=[column_to_check], inplace=True)
-
-    # Calculate average value and define lower and upper bounds
-    average_value = umsatz_data[column_to_check].mean()
-    lower_bound = average_value - (average_value * percentage / 100)
-    upper_bound = average_value + (average_value * percentage / 100)
-
-    # Filter out data outside the bounds
-    umsatz_data = umsatz_data[
-        (umsatz_data[column_to_check] >= lower_bound) & (umsatz_data[column_to_check] <= upper_bound)
-        ]
-    logging.info(umsatz_data)
-    return umsatz_data
+            logging.info(cleaned_data)
+            return cleaned_data
+        except Exception as e:
+            logging.error(f"Error cleaning data: {e}")
+            return pd.DataFrame()
