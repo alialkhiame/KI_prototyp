@@ -75,14 +75,7 @@ def predict_route():
     data_cleaner = CleanData(file, selected_columns, column_to_check, percentage)
     cleaned_data = data_cleaner.cleaned_data
 
-    # Preprocess the data
-    try:
-        # Initialize and train your model
-         X, y = preprocess_data(cleaned_data)
-         my_model = nero()
-         my_model.train_model(X, y, epochs=10)
-    except:
-        print("nero is sad")
+
 
 
     x = cleaned_data[selected_columns]
