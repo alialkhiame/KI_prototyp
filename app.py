@@ -16,10 +16,11 @@ from cleanData import CleanData  # Assuming CleanData is in cleanData.py
 import json
 import nero
 import io
+import news_api
 
 app = Flask(__name__)
 
-
+krieg =0
 def train_models(x_train, y_train):
     models = {
         'Linear_Regression': LinearRegression(),
@@ -53,8 +54,8 @@ def plot_results(results):
 
 @app.route('/')
 def index():
-    return render_template('index.html', sumValue=2)  # Replace 2 with actual value or function call
-
+    sumValue = news_api.get_sum()
+    return render_template('index.html', sumValue=sumValue)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
