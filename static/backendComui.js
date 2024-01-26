@@ -133,6 +133,6 @@ function displayResults(data) {
     resultsDiv.innerHTML =
         '<img src="data:image/png;base64,' + data.plot_url + '" />';
     resultsDiv2.innerHTML = data.results_html;
-    resultsDiv3.innerHTML = '<img src="data:image/png;base64,' + data.predictionsNero + '" />';
+    resultsDiv3.innerHTML = '<img src="data:image/png;base64,' + data.nero + '" />';
     // Display other results as needed
 }

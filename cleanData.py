@@ -61,6 +61,8 @@ class CleanData:
                     (data[self.column_to_check] >= lower_bound) & (data[self.column_to_check] <= upper_bound)
                     ]
                 return cleaned_data
+            print("data")
+            print(data)
             return data
         except Exception as e:
             logging.error(f"Error cleaning data: {e}")
