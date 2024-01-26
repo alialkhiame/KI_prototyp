@@ -34,3 +34,20 @@ def preprocess_data(data):
     X = preprocessor.fit_transform(X)
 
     return X, y.values.ravel()
+
+
+
+
+def change_index_month(data):
+    # Change "Monat" from string to int
+    for idx in data.index:
+        data.at[idx, "Monat"] = idx % 12 + 1
+
+    # Generate "Datum" column, also set index to "Datum"
+    data.Monat = data.Monat.astype(str)
+    data.Jahr = data.Jahr.astype(str)
+    data["Datum"] = data["Jahr"] + "-" + data["Monat"] + "-01"
+    data.set_index("Datum", inplace=True)
+    data.index = pd.to_datetime(data.index)
+
+    return data

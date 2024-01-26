@@ -10,8 +10,7 @@ from sklearn.tree import DecisionTreeRegressor
 from flask import Flask, request, jsonify, render_template
 from cleanData import CleanData  # Assuming CleanData is in cleanData.py
 import json
-
-from nero import nero
+import nero
 from preProcessour import preprocess_data
 
 app = Flask(__name__)
@@ -31,7 +30,7 @@ def predict(models, X_test):
     return pd.DataFrame(predictions)
 
 def plot_results(results):
-    results.plot(kind='bar')
+
     plt.title('Model Predictions')
     plt.xlabel('Data Points')
     plt.ylabel('Predicted Values')
@@ -75,7 +74,14 @@ def predict_route():
     data_cleaner = CleanData(file, selected_columns, column_to_check, percentage)
     cleaned_data = data_cleaner.cleaned_data
 
-
+    # Preprocess the data
+    try:
+        # Initialize and train your model
+         X, y = preprocess_data(cleaned_data)
+         my_model = nero()
+         my_model.train_model(X, y, epochs=10)
+    except:
+        print("nero is sad")
 
 
     x = cleaned_data[selected_columns]
