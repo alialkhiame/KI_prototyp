@@ -6,15 +6,19 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib
+
 matplotlib.use('Agg')  # Use a non-interactive backend such as 'Agg'
 import matplotlib.pyplot as plt
 
 import os
 
+
 class Nero:
     def __init__(self, model_save_path='umsatz_model.h5'):
         self.model_save_path = model_save_path
         self.model = tf.keras.models.load_model(self.model_save_path) if os.path.exists(self.model_save_path) else None
+
+
 
     def create_model(self, input_shape):
         self.model = tf.keras.Sequential([
@@ -45,10 +49,10 @@ class Nero:
     def load_and_preprocess_data(self, cleaned_data):
         # Load data from a file stream
         print("cleaned_data")
-        target_variable = 'Umsatz'
+        target_variable = 'revenue'
         # Selecting the correct columns for input features and target variable
-        input_features = ['Jahre', 'Wetherstatus', 'Inflationrate', 'InvestionindemMarkt',
-                          'Kriegwahrscheinlichkeit', 'Gewinn', 'Zinsen']
+        input_features = ['index', 'revenue', 'weatherstatus', 'investitionimmarkt',
+                          'inflationrate']
         # Check and fill missing columns with default values
         for feature in input_features:
             if feature not in cleaned_data.columns:
@@ -76,9 +80,10 @@ class Nero:
     def plot_resultsNero(self, y_test, predictions):
 
         print(predictions)
-        plt.scatter(y_test, predictions)
-        plt.xlabel("Actual Umsatz")
-        plt.ylabel("Predicted Umsatz")
+
+        plt.xlabel("predocation")
+        plt.ylabel("predocation")
+        plt.scatter(predictions, predictions)
         plt.title("Nero")
         plt.tight_layout()
         plt.show()

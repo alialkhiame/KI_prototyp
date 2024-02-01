@@ -12,6 +12,20 @@ class CleanData:
         self.percentage = percentage
         self.cleaned_data = self._read_and_clean_data()
 
+    def change_index_month(data):
+        # Change "Monat" from string to int
+        for idx in data.index:
+            data.at[idx, "Monat"] = idx % 12 + 1
+
+        # Generate "Datum" column, also set index to "Datum"
+        data.Monat = data.Monat.astype(str)
+        data.Jahr = data.Jahr.astype(str)
+        data["Datum"] = data["Jahr"] + "-" + data["Monat"] + "-01"
+        data.set_index("Datum", inplace=True)
+        data.index = pd.to_datetime(data.index)
+        print(data)
+        return data
+
     def _infer_delimiter_and_decimal(self):
         file_content = self.file_stream.read().decode('utf-8')
         self.file_stream.seek(0)  # Reset file_stream position
