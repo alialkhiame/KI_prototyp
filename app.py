@@ -20,6 +20,8 @@ from matplotlib import style
 from sklearn import preprocessing
 import datetime
 pd.options.mode.chained_assignment = None
+import sys
+
 
 
 app = Flask(__name__)
@@ -40,18 +42,62 @@ def read_and_clean_data(file):
 
 
 def change_index_month(data):
-    # Change "Monat" from string to int
-    for idx in data.index:
-        data.at[idx, "Monat"] = idx % 12 + 1
+    if "Monat" in data.columns:
+        # Change "Monat" from string to int
+        for idx in data.index:
+            if data.at[idx, "Monat"] == "January":
+                data.at[idx, "Monat"] = "01"
+            elif data.at[idx, "Monat"] == "February":
+                data.at[idx, "Monat"] = "02"
+            elif data.at[idx, "Monat"] == "March":
+                data.at[idx, "Monat"] = "03"
+            elif data.at[idx, "Monat"] == "April":
+                data.at[idx, "Monat"] = "04"
+            elif data.at[idx, "Monat"] == "May":
+                data.at[idx, "Monat"] = "05"
+            elif data.at[idx, "Monat"] == "June":
+                data.at[idx, "Monat"] = "06"
+            elif data.at[idx, "Monat"] == "July":
+                data.at[idx, "Monat"] = "07"
+            elif data.at[idx, "Monat"] == "August":
+                data.at[idx, "Monat"] = "08"
+            elif data.at[idx, "Monat"] == "September":
+                data.at[idx, "Monat"] = "09"
+            elif data.at[idx, "Monat"] == "October":
+                data.at[idx, "Monat"] = "10"
+            elif data.at[idx, "Monat"] == "November":
+                data.at[idx, "Monat"] = "11"
+            elif data.at[idx, "Monat"] == "December":
+                data.at[idx, "Monat"] = "12"
+            else:
+                data.at[idx, "Monat"] = "00"
 
     # Generate "Datum" column, also set index to "Datum"
-    data.Monat = data.Monat.astype(str)
-    data.Jahr = data.Jahr.astype(str)
-    data["Datum"] = data["Jahr"] + "-" + data["Monat"] + "-01"
-    data.set_index("Datum", inplace=True)
-    data.index = pd.to_datetime(data.index)
-    print(data)
-    return data
+    if "Tag" in data.columns:
+        data.Tag = data.Tag.astype(str)
+        data.Monat = data.Monat.astype(str)
+        data.Jahr = data.Jahr.astype(str)
+        data["Datum"] = data["Jahr"] + "-" + data["Monat"] + "-" + data["Tag"]
+        data.set_index("Datum", inplace=True)
+        data.index = pd.to_datetime(data.index)
+        print(data)
+        return data
+    elif "Monat" in data.columns:
+        data.Monat = data.Monat.astype(str)
+        data.Jahr = data.Jahr.astype(str)
+        data["Datum"] = data["Jahr"] + "-" + data["Monat"] + "-01"
+        data.set_index("Datum", inplace=True)
+        data.index = pd.to_datetime(data.index)
+        print(data)
+        return data
+    elif "Jahr" in data.columns:
+        data.Jahr = data.Jahr.astype(str)
+        data["Datum"] = data["Jahr"] + "-01-01"
+        data.set_index("Datum", inplace=True)
+        data.index = pd.to_datetime(data.index)
+        print(data)
+        return data
+
 
 
 def train_models(X_train, y_train):
@@ -97,21 +143,40 @@ def plot_forecast(predictions, target_column_name, selected_columns):
 
     style.use("ggplot")
     last_date = selected_columns.iloc[-1].name
+    print(last_date)
+    print(selected_columns.iloc[-1])
     last_unix = last_date.timestamp()
-    one_month = 86400 * 30
-    next_unix = last_unix + one_month
-
+    step = 0
+    if "Tag" in selected_columns.columns:
+        step = 86400
+    elif "Monat" in selected_columns.columns:
+        step = 86400 * 30.5
+    elif "Jahr" in selected_columns.columns:
+        step = 86400 * 30.5 * 12
+    next_step = last_unix + step
 
 
     selected_columns["Linear Regression"] = np.nan
     selected_columns["Decision Tree Regression"] = np.nan
     selected_columns["Random Forest Regression"] = np.nan
     for i, j, k in zip(predictions["Linear_Regression"], predictions["Decision_Tree"], predictions["Random_Forest"]) :
-        next_date = datetime.datetime.fromtimestamp(next_unix)
-        next_unix += 86400 * 30
+        next_date = datetime.datetime.fromtimestamp(next_step)
+        if "Tag" in selected_columns.columns:
+            next_step += 86400
+        elif "Monat" in selected_columns.columns:
+            next_step += 86400 * 30.5
+        elif "Jahr" in selected_columns.columns:
+            next_step += 86400 * 30.5 * 12
         selected_columns.loc[next_date, "Linear Regression"] = i #[np.nan for _ in range(len(selected_columns.columns) - 1)] + [i]
         selected_columns.loc[next_date, "Decision Tree Regression"] = j
         selected_columns.loc[next_date, "Random Forest Regression"] = k
+
+    if "Tag" in selected_columns.columns:
+        window = 30
+        selected_columns[f"{target_column_name}"] = selected_columns[f"{target_column_name}"].rolling(window=window).mean()
+        selected_columns["Linear Regression"] = selected_columns["Linear Regression"].rolling(window=window).mean()
+        selected_columns["Decision Tree Regression"] = selected_columns["Decision Tree Regression"].rolling(window=window).mean()
+        selected_columns["Random Forest Regression"] = selected_columns["Random Forest Regression"].rolling(window=window).mean()
 
     # Initialise subplot
     figure, axis = plt.subplots(3,1, figsize=(8, 8))
@@ -281,6 +346,7 @@ def predict_route():
 
     except Exception as e:
         logger.error(f"Prediction error: {e}")
+        print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
         return jsonify(error="Error in prediction"), 400
 
 
