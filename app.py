@@ -27,6 +27,7 @@ import sys
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+plt.set_loglevel(level="warning")
 
 
 def read_and_clean_data(file):
@@ -44,25 +45,26 @@ def read_and_clean_data(file):
 def change_index_month(data):
     if "Monat" in data.columns:
         # Change "Monat" from string to int
+
         for idx in data.index:
             if data.at[idx, "Monat"] == "January":
-                data.at[idx, "Monat"] = "01"
+                data.at[idx, "Monat"] = "1"
             elif data.at[idx, "Monat"] == "February":
-                data.at[idx, "Monat"] = "02"
+                data.at[idx, "Monat"] = "2"
             elif data.at[idx, "Monat"] == "March":
-                data.at[idx, "Monat"] = "03"
+                data.at[idx, "Monat"] = "3"
             elif data.at[idx, "Monat"] == "April":
-                data.at[idx, "Monat"] = "04"
+                data.at[idx, "Monat"] = "4"
             elif data.at[idx, "Monat"] == "May":
-                data.at[idx, "Monat"] = "05"
+                data.at[idx, "Monat"] = "5"
             elif data.at[idx, "Monat"] == "June":
-                data.at[idx, "Monat"] = "06"
+                data.at[idx, "Monat"] = "6"
             elif data.at[idx, "Monat"] == "July":
-                data.at[idx, "Monat"] = "07"
+                data.at[idx, "Monat"] = "7"
             elif data.at[idx, "Monat"] == "August":
-                data.at[idx, "Monat"] = "08"
+                data.at[idx, "Monat"] = "8"
             elif data.at[idx, "Monat"] == "September":
-                data.at[idx, "Monat"] = "09"
+                data.at[idx, "Monat"] = "9"
             elif data.at[idx, "Monat"] == "October":
                 data.at[idx, "Monat"] = "10"
             elif data.at[idx, "Monat"] == "November":
@@ -70,10 +72,13 @@ def change_index_month(data):
             elif data.at[idx, "Monat"] == "December":
                 data.at[idx, "Monat"] = "12"
             else:
-                data.at[idx, "Monat"] = "00"
+                break
+
 
     # Generate "Datum" column, also set index to "Datum"
     if "Tag" in data.columns:
+        data.Tag = data.Tag.astype(int)
+        data.Jahr = data.Jahr.astype(int)
         data.Tag = data.Tag.astype(str)
         data.Monat = data.Monat.astype(str)
         data.Jahr = data.Jahr.astype(str)
@@ -136,14 +141,14 @@ def plot_forecast(predictions, target_column_name, selected_columns):
     linear_prediction = predictions["Linear_Regression"]
     decision_prediction = predictions["Decision_Tree"]
     random_prediction = predictions["Random_Forest"]
-    print("Linear prediction:\n", linear_prediction)
-    print("Decision prediction:\n", decision_prediction)
-    print("Random prediction:\n", random_prediction)
+    #print("Linear prediction:\n", linear_prediction)
+    #print("Decision prediction:\n", decision_prediction)
+    #print("Random prediction:\n", random_prediction)
     print("target column:\n", selected_columns)
 
     style.use("ggplot")
     last_date = selected_columns.iloc[-1].name
-    print(last_date)
+    print("Last Date of selected columns: ", last_date)
     print(selected_columns.iloc[-1])
     last_unix = last_date.timestamp()
     step = 0
@@ -155,11 +160,10 @@ def plot_forecast(predictions, target_column_name, selected_columns):
         step = 86400 * 30.5 * 12
     next_step = last_unix + step
 
-
     selected_columns["Linear Regression"] = np.nan
     selected_columns["Decision Tree Regression"] = np.nan
     selected_columns["Random Forest Regression"] = np.nan
-    for i, j, k in zip(predictions["Linear_Regression"], predictions["Decision_Tree"], predictions["Random_Forest"]) :
+    for i, j, k in zip(predictions["Linear_Regression"], predictions["Decision_Tree"], predictions["Random_Forest"]):
         next_date = datetime.datetime.fromtimestamp(next_step)
         if "Tag" in selected_columns.columns:
             next_step += 86400
@@ -171,30 +175,46 @@ def plot_forecast(predictions, target_column_name, selected_columns):
         selected_columns.loc[next_date, "Decision Tree Regression"] = j
         selected_columns.loc[next_date, "Random Forest Regression"] = k
 
+
+    print("Linear Predictions:\n", selected_columns["Linear Regression"].dropna())
+    print("Sum Linear: ", selected_columns["Linear Regression"].sum())
+    print("Decision Predictions:\n", selected_columns["Decision Tree Regression"].dropna())
+    print("Sum Decision Tree: ", selected_columns["Decision Tree Regression"].sum())
+    print("Random Forest Predictions:\n", selected_columns["Random Forest Regression"].dropna())
+    print("Sum Random Forest: ", selected_columns["Random Forest Regression"].sum())
+
+
     if "Tag" in selected_columns.columns:
-        window = 30
+        window = 15
         selected_columns[f"{target_column_name}"] = selected_columns[f"{target_column_name}"].rolling(window=window).mean()
-        selected_columns["Linear Regression"] = selected_columns["Linear Regression"].rolling(window=window).mean()
-        selected_columns["Decision Tree Regression"] = selected_columns["Decision Tree Regression"].rolling(window=window).mean()
-        selected_columns["Random Forest Regression"] = selected_columns["Random Forest Regression"].rolling(window=window).mean()
+        selected_columns["Linear Regression"] = selected_columns["Linear Regression"][::-1].rolling(window=window).mean()[::-1]
+        selected_columns["Decision Tree Regression"] = selected_columns["Decision Tree Regression"][::-1].rolling(window=window).mean()[::-1]
+        selected_columns["Random Forest Regression"] = selected_columns["Random Forest Regression"][::-1].rolling(window=window).mean()[::-1]
+
+
 
     # Initialise subplot
     figure, axis = plt.subplots(3,1, figsize=(8, 8))
 
+    sum_lin = round(selected_columns["Linear Regression"].sum(), 2)
+    sum_dec = round(selected_columns["Decision Tree Regression"].sum(), 2)
+    sum_rand = round(selected_columns["Random Forest Regression"].sum(), 2)
+
     # Plot Linear Regression
     axis[0].plot(selected_columns[f"{target_column_name}"])
     axis[0].plot(selected_columns["Linear Regression"])
-    axis[0].set_title("Linear Regression")
+    axis[0].set_title(f"Linear Regression, Sum: {sum_lin}â‚¬")
 
     # Plot Decision Tree Regression
     axis[1].plot(selected_columns[f"{target_column_name}"])
     axis[1].plot(selected_columns["Decision Tree Regression"])
-    axis[1].set_title("Decision Tree Regression")
+    axis[1].set_title(f"Decision Tree Regression, Sum: {sum_dec}â‚¬")
 
     # Plot Random Forest Regression
     axis[2].plot(selected_columns[f"{target_column_name}"])
     axis[2].plot(selected_columns["Random Forest Regression"])
-    axis[2].set_title("Random Forest Regression")
+    axis[2].set_title(f"Random Forest Regression, Sum: {sum_rand}â‚¬")
+
 
     plt.xlabel("Datum")
     plt.ylabel(f"{target_column_name}")
@@ -216,9 +236,8 @@ def forecast(selected_cols, target_col):
     X_lately = X[-forecast_out:]
     X = X[:-forecast_out]
 
-    selected_cols.dropna(inplace=True)
-
-    y = np.array(selected_cols["label"])
+    #selected_cols.dropna(inplace=True)
+    y = np.array(selected_cols["label"].dropna())
 
     # Train model/classifier
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
@@ -248,8 +267,7 @@ def average_forecast(selected_cols, target_col_name):
         pred_lin_result[f"Linear_Regression{i}"] = pred_df["Linear_Regression"]
         pred_dec_result[f"Decision_Tree{i}"] = pred_df["Decision_Tree"]
         pred_rf_result[f"Random_Forest{i}"] = pred_df["Random_Forest"]
-
-        print(f"Pred{i}:\n", pred_df)
+        #print(f"Pred{i}:\n", pred_df)
 
     pred_lin_result["Mean Linear Regression"] = pred_lin_result.mean(axis=1).round(decimals=2)
     pred_dec_result["Mean Decision Tree"] = pred_dec_result.mean(axis=1).round(decimals=2)
@@ -351,4 +369,4 @@ def predict_route():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

@@ -21,7 +21,25 @@ let fileFlag = 0;
 fileInput.addEventListener("click", () => {
     fileInput.value = '';
     console.log(fileInput.value);
+       if(this.files && this.files[0]) {
+           // Code to handle the file, similar to what you have in your drop event listener
+           uploadIcon.innerHTML = 'check_circle';
+           dragDropText.innerHTML = 'File Selected Successfully!';
 
+           // Instead of using e.dataTransfer.files, use this.files
+           let files = this.files;
+
+           // Now, handle the file similar to how you handle it in the drop event
+           fileName.innerHTML = files[0].name;
+           fileSize.innerHTML = (files[0].size / 1024).toFixed(1) + " KB";
+
+           // If you have a function to handle the file upload or preview, call it here
+           s(files); // Assuming this function handles the files
+
+           uploadedFile.style.cssText = "display: flex;";
+           progressBar.style.width = '0'; // Reset or start your progress bar here
+           fileFlag = 0;
+       }
 });
 
 
